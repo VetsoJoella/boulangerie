@@ -12,5 +12,6 @@ CREATE SEQUENCE s_achatIngredient START 1 INCREMENT 1;
 CREATE SEQUENCE s_fabrication START 1 INCREMENT 1;
 CREATE SEQUENCE s_vente START 1 INCREMENT 1;
 CREATE SEQUENCE s_historiqueproduit START 1 INCREMENT 1;
+CREATE SEQUENCE s_detailFabrication START 1 INCREMENT 1;
 
 -- Remarque : Les séquences seront utilisées par les colonnes par défaut dans vos tables grâce à nextval().
