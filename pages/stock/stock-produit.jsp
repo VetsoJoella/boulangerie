@@ -1,5 +1,15 @@
 <%@ include file="../templates/header.jsp" %>
+<%@page import="com.model.stock.*"%>
+<% 
+  Stock[] stocks = (Stock[])request.getAttribute("stocks");
 
+  if (request.getAttribute("message") != null) { %>
+      <script type="text/javascript">
+          alert('<%= request.getAttribute("message").toString().replace("'", "\\'").replace("\n", "\\n") %>');
+      </script>
+  <% } 
+
+%>
 
   <main id="main" class="main">
 
@@ -56,26 +66,20 @@
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Ingredient</th>
-                    <th scope="col">Quantité</th>
+                    <th scope="col">Produit</th>
+                    <th scope="col">Quantité(unitaire)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Pain au Chocolat</td>
-                    <td>80</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Pain Complet</td>
-                    <td>7</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Croissant</td>
-                    <td>7</td>
-                  </tr>
+                 <% if(stocks!=null && stocks.length>0) {
+                    for(Stock stock : stocks){ %>
+                      <tr>
+                        <th scope="row"><%= ((StockProduit)stock).getProduit().getId() %></th>
+                        <td><%= ((StockProduit)stock).getProduit().getNom() %></td>
+                        <td><%= stock.getQuantite() %></td>
+                      </tr>
+                    <% } 
+                  } %>
                 </tbody>
               </table>
               <!-- End Table with hoverable rows -->

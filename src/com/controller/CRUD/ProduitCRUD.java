@@ -64,6 +64,8 @@ public class ProduitCRUD extends HttpServlet{
             else produit.insert(connection);
             connection.commit();
             connection.setAutoCommit(true);
+            req.setAttribute("message", "Insertion produit effectué");
+
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());

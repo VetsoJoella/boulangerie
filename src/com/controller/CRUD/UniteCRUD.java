@@ -54,6 +54,7 @@ public class UniteCRUD extends HttpServlet{
             unite.insert(connection);
             connection.commit();
             connection.setAutoCommit(true);
+            req.setAttribute("message", "Insertion unité effectué");
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());

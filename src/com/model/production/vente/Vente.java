@@ -61,6 +61,8 @@ public class Vente extends Production{
         else sql+= "and '1' = ? ";
         if (dateMax!=null) sql+= "and dateVente <= ? ";
         else sql+= "and '1' = ? ";
+        sql+= "order by dateVente asc";
+
           
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
@@ -70,7 +72,7 @@ public class Vente extends Production{
             else pstmt.setString(2, "1");
             if(dateMax!=null) pstmt.setDate(3, dateMax);
             else pstmt.setString(3, "1");
-
+            // System.out.println("Requete de vente est "+sql);
             try (ResultSet rs = pstmt.executeQuery()) {
 
                 while (rs.next()) {
@@ -91,7 +93,8 @@ public class Vente extends Production{
     public static Vente[] getByCriteria(Connection connection, String idProduit, String dateMin, String dateMax) throws Exception {
         
         Date min = null, max = null ;
-        Produit produit = new Produit(idProduit);
+        Produit produit = null;
+        if(idProduit!=null) produit = new Produit(idProduit);
         try{
             min = Date.valueOf(dateMin);
         } catch(Exception err){}

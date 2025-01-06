@@ -6,11 +6,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.exception.DonneesManquantesException;
 import com.exception.model.ValeurInvalideException;
 import com.model.ingredient.unite.Unite;
+import com.model.rapport.Rapport;
+import com.service.util.DateFomatter;
 
 public class AchatIngredient {
     
@@ -187,7 +191,9 @@ public class AchatIngredient {
         else sql+= "and '1' = ? ";
         if (dateMax!=null) sql+= "and dateAchat <= ? ";
         else sql+= "and '1' = ? ";
+        sql+= "order by dateachat asc";
 
+        
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
             if(ingredient!=null) pstmt.setString(1, ingredient.getId());
@@ -196,6 +202,8 @@ public class AchatIngredient {
             else pstmt.setString(2, "1");
             if(dateMax!=null) pstmt.setDate(3, dateMax);
             else pstmt.setString(3, "1");
+
+            // System.out.println("Requete de achat est "+sql);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -207,6 +215,7 @@ public class AchatIngredient {
                     AchatIngredient achatIngredient = new AchatIngredient(rs.getString("id"), i, rs.getDate("dateachat"), rs.getDouble("prixunitaire"), rs.getDouble("quantiteachete"));
                     achatIngredient.setReste(rs.getDouble("d_reste"));
                     achatIngredients.add(achatIngredient);
+                    System.out.println(achatIngredient.toString());
                 }
             }
         }
@@ -241,6 +250,7 @@ public class AchatIngredient {
         else sql+= "and '1' = ? ";
         if (dateMax!=null) sql+= "and dateAchat <= ? ";
         else sql+= "and '1' = ? ";
+        sql+= "order by dateachat asc";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
@@ -320,5 +330,24 @@ public class AchatIngredient {
                 }
             }
         }
+    }
+
+     public static Rapport getRapport(AchatIngredient[] achatIngredients){
+        
+        double sommeMontant = 0, sommeQuantite = 0 ;
+        Map<String,Double> maps = new LinkedHashMap<>();
+        for (AchatIngredient achatIngredient : achatIngredients) {
+            String dateStr = DateFomatter.formatterDate(achatIngredient.getDate());
+            sommeMontant+= achatIngredient.getPrixUnitaire()*achatIngredient.getQuantite();
+            sommeQuantite+= achatIngredient.getQuantite();
+            if(maps.get(dateStr)==null){
+                maps.put(dateStr, 0.0);
+            }
+            double val = maps.get(dateStr.toString());
+            maps.replace(dateStr, val+achatIngredient.getQuantite());
+        } 
+        Rapport rapport = new Rapport(sommeMontant, sommeQuantite);
+        rapport.setValeurs(maps);
+        return rapport ;
     }
 }

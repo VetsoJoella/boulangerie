@@ -72,6 +72,7 @@ public class RecetteCRUD extends HttpServlet{
             recette.insert(connection);
             connection.commit();
             connection.setAutoCommit(true);
+            req.setAttribute("message", "Insertion recette effectuée");
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());

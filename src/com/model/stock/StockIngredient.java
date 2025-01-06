@@ -16,172 +16,190 @@ import com.model.recette.Recette;
 public class StockIngredient extends Stock{
     
     
-        private Ingredient ingredient;
-        private AchatIngredient[] achatIngredients ; 
+    private Ingredient ingredient;
+    private AchatIngredient[] achatIngredients ; 
 
-        // Getter et Setter
-        public Ingredient getIngredient() {
-            return ingredient;
-        }
-    
-        public void setIngredient(Ingredient ingredient) {
-            this.ingredient = ingredient;
+    // Getter et Setter
+    public Ingredient getIngredient() {
+        return ingredient;
+    }
+
+    public void setIngredient(Ingredient ingredient) {
+        this.ingredient = ingredient;
+    }
+
+    public AchatIngredient[] getAchatIngredients() {
+        return achatIngredients;
+    }
+
+    public void setAchatIngredients(AchatIngredient[] achatIngredients) {
+        this.achatIngredients = achatIngredients;
+    }
+
+    void setAchatIngredients(Connection connection) throws Exception{
+
+        if(ingredient!=null) {
+            setAchatIngredients(AchatIngredient.getAchatAvecReste(connection, ingredient, null, null));
         }
 
-        public AchatIngredient[] getAchatIngredients() {
-            return achatIngredients;
-        }
+    }
+    // Constructeurs
+    public StockIngredient() {
+        super();
+    }
 
-        public void setAchatIngredients(AchatIngredient[] achatIngredients) {
-            this.achatIngredients = achatIngredients;
-        }
-    
-        void setAchatIngredients(Connection connection) throws Exception{
+    public StockIngredient(Ingredient ingredient, double quantite) {
+        super(quantite);
+        setIngredient(ingredient);
+    }
 
-            if(ingredient!=null) {
-                setAchatIngredients(AchatIngredient.getAchatAvecReste(connection, ingredient, null, null));
-            }
 
-        }
-        // Constructeurs
-        public StockIngredient() {
-            super();
-        }
-    
-        public StockIngredient(Ingredient ingredient, double quantite) {
-            super(quantite);
-            setIngredient(ingredient);
-        }
-    
-    
-        // Méthode pour récupérer le stock par ID de produit
-        public static Stock[] getStock(Connection connection, Produit produit) throws Exception {
-    
-            List<Stock> stocks = new ArrayList<>();
+    // Méthode pour récupérer le stock par ID de produit
+    public static Stock[] getStock(Connection connection) throws Exception {
 
-            String sql = "SELECT * FROM v_stock_ingredient_details WHERE 1=1 ";
-            if(produit!=null) sql+= "and idIngredient in (select idIngredient from v_recette_ingredient_produit where idProduit =? )";
-            try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-                
-                if(produit!=null) pstmt.setString(1, produit.getId());
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    while (rs.next()) {
-                        Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
-                        Ingredient ingredient = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
-                        Stock stock = new StockIngredient(ingredient, rs.getDouble("reste"));
-                        stocks.add(stock);
-                    }
+        List<Stock> stocks = new ArrayList<>();
+
+        String sql = "SELECT * FROM v_stock_ingredient_details WHERE 1=1 ";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
+                    Ingredient ingredient = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
+                    Stock stock = new StockIngredient(ingredient, rs.getDouble("reste"));
+                    stocks.add(stock);
                 }
             }
-            return stocks.toArray(new Stock[0]);
-
         }
+        return stocks.toArray(new Stock[0]);
 
-        public static Stock[] getStock(Connection connection, Recette recettes[], Date date) throws Exception {
-    
-            List<Stock> stocks = new ArrayList<>() ;
-            for (Recette recette : recettes) {
-                 stocks.add(getStock(connection, recette.getIngredient(), date));
+    }
+
+    public static Stock[] getStock(Connection connection, Produit produit) throws Exception {
+
+        List<Stock> stocks = new ArrayList<>();
+
+        String sql = "SELECT * FROM v_stock_ingredient_details WHERE 1=1 ";
+        if(produit!=null && !produit.getId().isEmpty()) sql+= "and idIngredient in (select idIngredient from v_recette_ingredient_produit where idProduit =? )";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            if(produit!=null && !produit.getId().isEmpty()) pstmt.setString(1, produit.getId());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
+                    Ingredient ingredient = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
+                    Stock stock = new StockIngredient(ingredient, rs.getDouble("reste"));
+                    stocks.add(stock);
+                }
             }
-            return stocks.toArray(new Stock[0]);
         }
+        return stocks.toArray(new Stock[0]);
 
-        public static Stock[] getStock(Connection connection, Ingredient ingredients[]) throws Exception {
-    
-           List<Stock> stocks = new ArrayList<>() ;
-           for (Ingredient ingredient : ingredients) {
-                stocks.add(getStock(connection, ingredient));
-           }
-           return stocks.toArray(new Stock[0]);
+    }
+
+    public static Stock[] getStock(Connection connection, Recette recettes[], Date date) throws Exception {
+
+        List<Stock> stocks = new ArrayList<>() ;
+        for (Recette recette : recettes) {
+                stocks.add(getStock(connection, recette.getIngredient(), date));
         }
+        return stocks.toArray(new Stock[0]);
+    }
+
+    public static Stock[] getStock(Connection connection, Ingredient ingredients[]) throws Exception {
+
+        List<Stock> stocks = new ArrayList<>() ;
+        for (Ingredient ingredient : ingredients) {
+            stocks.add(getStock(connection, ingredient));
+        }
+        return stocks.toArray(new Stock[0]);
+    }
+    
+
+    public static Stock getStock(Connection connection, Ingredient ingredient) throws Exception {
+
+
+        String sql = "SELECT * FROM v_stock_ingredient_details WHERE 1=1 ";
+        if(ingredient!=null) sql+= "and idIngredient =? )";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            
+            if(ingredient!=null) pstmt.setString(1, ingredient.getId());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
+                    Ingredient i = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
+                    StockIngredient stock = new StockIngredient(i, rs.getDouble("reste"));
+                    stock.setAchatIngredients(connection);
+                    return stock ;
+                }
+            }
+        }
+        return null ;
+
+    }
+
+    static Stock getStock(Connection connection, Ingredient ingredient, Date date) throws Exception {
+
+
+        String sql = "select a.*, i.nom as nomIngredient , idUnite, u.nom as nomUnite from "+
+                    "(select idIngredient, sum(d_reste) as reste from achatIngredient where 1=1 ";
         
-
-        public static Stock getStock(Connection connection, Ingredient ingredient) throws Exception {
-    
-
-            String sql = "SELECT * FROM v_stock_ingredient_details WHERE 1=1 ";
-            if(ingredient!=null) sql+= "and idIngredient =? )";
-            try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-                
-                if(ingredient!=null) pstmt.setString(1, ingredient.getId());
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) {
-                        Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
-                        Ingredient i = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
-                        StockIngredient stock = new StockIngredient(i, rs.getDouble("reste"));
-                        stock.setAchatIngredients(connection);
-                        return stock ;
-                    }
-                }
-            }
-            return null ;
-
-        }
-
-        static Stock getStock(Connection connection, Ingredient ingredient, Date date) throws Exception {
-    
-
-            String sql = "select a.*, i.nom as nomIngredient , idUnite, u.nom as nomUnite from "+
-                        "(select idIngredient, sum(d_reste) as reste from achatIngredient where 1=1 ";
+        if(date!=null) sql+= " and dateAchat <= ? group by idIngredient) a ";
+        else sql+= " and '1' = ? group by idIngredient) a ";
+        sql+=  "join ingredient i on idIngredient = i.id join unite u on u.id = idUnite ";
+        if(ingredient!=null) sql+= "where idIngredient = ? order by date";
+        System.out.println("Requete est : "+sql);
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             
-            if(date!=null) sql+= " and dateAchat <= ? group by idIngredient) a ";
-            else sql+= " and '1' = ? group by idIngredient) a ";
-            sql+=  "join ingredient i on idIngredient = i.id join unite u on u.id = idUnite ";
-            if(ingredient!=null) sql+= "where idIngredient = ? ";
-            System.out.println("Requete est : "+sql);
-            try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-                
-                if(date!=null) pstmt.setDate(1, date);
-                else pstmt.setString(1, "1");
-                if(ingredient!=null) pstmt.setString(2, ingredient.getId());
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) {
-                        Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
-                        Ingredient i = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
-                        StockIngredient stock = new StockIngredient(i, rs.getDouble("reste"));
-                        stock.setAchatIngredients(connection);
-                        return stock ;
-                    }
+            if(date!=null) pstmt.setDate(1, date);
+            else pstmt.setString(1, "1");
+            if(ingredient!=null) pstmt.setString(2, ingredient.getId());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
+                    Ingredient i = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
+                    StockIngredient stock = new StockIngredient(i, rs.getDouble("reste"));
+                    stock.setAchatIngredients(connection);
+                    return stock ;
                 }
             }
-            return new StockIngredient();
-
         }
+        return new StockIngredient();
 
-        public static Stock getStock(Connection connection, String idIngredient, String date) throws Exception {
-    
-            Ingredient ingredient = null ; Date d = null ;
-            
-            if(idIngredient!=null) ingredient = new Ingredient(idIngredient);
-            try{
-                d = Date.valueOf(date);
-            } catch(Exception err){}
+    }
 
-            return getStock(connection, ingredient, d);
+    public static Stock getStock(Connection connection, String idIngredient, String date) throws Exception {
 
-        }
+        Ingredient ingredient = null ; Date d = null ;
+        
+        if(idIngredient!=null) ingredient = new Ingredient(idIngredient);
+        try{
+            d = Date.valueOf(date);
+        } catch(Exception err){}
 
-        @Override
-        public void utiliserStock(double quantite) throws Exception {
+        return getStock(connection, ingredient, d);
 
-            double quantiteUtilise = 0 ; 
-            List<AchatIngredient> achatIngredients = new ArrayList<>();
-            for (int i = 0; i < getAchatIngredients().length; i++) {
+    }
 
-                if(quantiteUtilise==quantite) break ;
+    @Override
+    public void utiliserStock(double quantite) throws Exception {
 
-                if(quantiteUtilise+getAchatIngredients()[i].getReste()<=quantite){ 
-                    quantiteUtilise+=getAchatIngredients()[i].getReste();
-                    getAchatIngredients()[i].setReste(0);
-                }
-                else {
-                    getAchatIngredients()[i].setReste(quantiteUtilise);
-                    quantiteUtilise = quantite ; 
-                }
-                achatIngredients.add(getAchatIngredients()[i]);
+        double quantiteUtilise = 0 ; 
+        List<AchatIngredient> achatIngredients = new ArrayList<>();
+        for (int i = 0; i < getAchatIngredients().length; i++) {
+
+            if(quantiteUtilise==quantite) break ;
+
+            if(quantiteUtilise+getAchatIngredients()[i].getReste()<=quantite){ 
+                quantiteUtilise+=getAchatIngredients()[i].getReste();
+                getAchatIngredients()[i].setReste(0);
             }
-            setAchatIngredients(achatIngredients.toArray(new AchatIngredient[0]));
+            else {
+                getAchatIngredients()[i].setReste(getAchatIngredients()[i].getReste()-quantite+quantiteUtilise);
+                quantiteUtilise = quantite ; 
+            }
+            achatIngredients.add(getAchatIngredients()[i]);
         }
+        setAchatIngredients(achatIngredients.toArray(new AchatIngredient[0]));
+    }
     
         // // Méthode pour récupérer le stock par tableau d'ingrédients
         // public static Stock[] getStockByProduit(Connection connection, Ingredient[] ingredients) throws SQLException {

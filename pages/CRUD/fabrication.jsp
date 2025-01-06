@@ -8,7 +8,7 @@
 
     if (request.getAttribute("message") != null) { %>
       <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
+          alert('<%= request.getAttribute("message").toString().replace("'", "\\'").replace("\n", "\\n") %>');
       </script>
   <% } 
 %>
@@ -78,6 +78,7 @@
                         <label for="inputEmail3" class="col-sm-2 col-form-label">Produit</label>
                         <div class="col-sm-10">
                             <select id="inputState" class="form-select" name="idProduit">
+                              <option></option>
                               <% for(Produit produit : produits) {  %>
                                 <option value="<%= produit.getId() %>"><%= produit.getNom() %></option>
                               <% } %>

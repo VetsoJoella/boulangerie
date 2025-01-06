@@ -2,8 +2,12 @@ package com.model.production;
 
 import com.exception.model.ValeurInvalideException;
 import com.model.produit.Produit;
+import com.model.rapport.Rapport;
+import com.service.util.DateFomatter;
 
 import java.sql.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 public abstract class Production {
@@ -110,6 +114,25 @@ public abstract class Production {
                 ", dateFabrication=" + getDate() +
                 ", produit=" + produit +
                 '}';
+    }
+
+    public static Rapport getRapport(Production[] productions){
+        
+        double sommeMontant = 0, sommeQuantite = 0 ;
+        Map<String,Double> maps = new LinkedHashMap<>();
+        for (Production production : productions) {
+            String dateStr = DateFomatter.formatterDate(production.getDate());
+            sommeMontant+= production.getProduit().getPrixVente()*production.getQuantite();
+            sommeQuantite+= production.getQuantite();
+            if(maps.get(dateStr)==null){
+                maps.put(dateStr, 0.0);
+            }
+            double val = maps.get(dateStr.toString());
+            maps.replace(dateStr, val+production.getQuantite());
+        } 
+        Rapport rapport = new Rapport(sommeMontant, sommeQuantite);
+        rapport.setValeurs(maps);
+        return rapport ;
     }
 
     protected abstract void insertMere(Connection connection) throws Exception ;

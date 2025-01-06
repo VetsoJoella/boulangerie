@@ -54,11 +54,15 @@ public class VenteCRUD extends HttpServlet {
             Vente vente = new Vente(null, quantite, date, idProduit);
             vente.insert(connection);
             ventes =  Vente.getByCriteria(connection, null, null, null) ;
+            req.setAttribute("message", "Vente insérée");
+
         } catch (Exception e) {
+            e.printStackTrace();
             req.setAttribute("message", e.getMessage());
 
         } finally{
             req.setAttribute("ventes",ventes);
+            processRequest(req, res);
         }
     }
 

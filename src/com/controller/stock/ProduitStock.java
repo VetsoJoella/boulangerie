@@ -9,11 +9,31 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.model.stock.Stock;
+import com.model.stock.StockProduit;
+import com.service.connection.UtilDb;
+
 @WebServlet("/stock/produit")
 public class ProduitStock extends HttpServlet{
-    
+  
+    UtilDb utilDb ;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        utilDb = (UtilDb) getServletContext().getAttribute("utilDb");
+    }
+
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-       
+       try {
+            Stock[] stockProduits = StockProduit.getStock(utilDb.getConnection());
+            req.setAttribute("stocks", stockProduits);
+            System.out.println("Longueurs des stocks est "+stockProduits.length);
+
+       } catch(Exception err) {
+            req.setAttribute("message", err.getMessage());
+            err.printStackTrace();
+       }
         processRequest(req,res);
     }
 

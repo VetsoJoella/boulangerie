@@ -75,7 +75,7 @@ public class Fabrication extends Production{
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, getQuantite());
             pstmt.setDate(2, getDate());
-            pstmt.setInt(3, getReste());
+            pstmt.setInt(3, getQuantite());
             pstmt.setString(4, getProduit().getId()); // Utilisation de l'ID de l'objet Produit
             pstmt.executeUpdate();
 
@@ -193,7 +193,7 @@ public class Fabrication extends Production{
 
                     String produitId = rs.getString("produit_id");
                     String produitNom = rs.getString("produit_nom");
-                    double produitPrixVente = rs.getDouble("prixVente");
+                    double produitPrixVente = rs.getDouble("d_prixVente");
                     Produit p = new Produit(produitId, produitNom, produitPrixVente);
                     fabrications.add(new Fabrication(rs.getString("id"), quantiteFabrication, dateFabrication, reste, p));
                 }
@@ -279,7 +279,6 @@ public class Fabrication extends Production{
                 AchatIngredient.update(connection, ((StockIngredient)stocks[i]).getAchatIngredients());
             }
             connection.commit();
-
             
         } catch(Exception err) {
             connection.rollback();
@@ -287,7 +286,6 @@ public class Fabrication extends Production{
 
         } finally{
             connection.setAutoCommit(true);
-
         }
 
     }

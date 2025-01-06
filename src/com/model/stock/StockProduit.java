@@ -60,7 +60,8 @@ public class StockProduit extends Stock {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     Produit p = new Produit(rs.getString("idproduit"), rs.getString("nomproduit"), rs.getDouble("d_prixVente"));
-                    Stock stock = new StockProduit(p, rs.getDouble("reste"));
+                    StockProduit stock = new StockProduit(p, rs.getDouble("reste"));
+                    stock.setFabrications(connection);
                     stocks.add(stock);
                 }
             }
@@ -81,7 +82,8 @@ public class StockProduit extends Stock {
                 if (rs.next()) {
                   
                     Produit p = new Produit(rs.getString("idproduit"), rs.getString("nomproduit"), rs.getDouble("d_prixVente"));
-                    Stock stock = new StockProduit(p, rs.getDouble("reste"));
+                    StockProduit stock = new StockProduit(p, rs.getDouble("reste"));
+                    stock.setFabrications(connection);
                     return stock ;
                 }
             }

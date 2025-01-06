@@ -26,6 +26,7 @@ public class FabricationCRUD extends HttpServlet{
     }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        System.out.println("Appel de get dans FABRICATION");
         
         try {
             Connection connection = utilDb.getConnection();
@@ -43,6 +44,7 @@ public class FabricationCRUD extends HttpServlet{
 
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         
+        System.out.println("Appel de post dans FABRICATION");
         String produit = req.getParameter("idProduit");
         String quantite = req.getParameter("quantite"); 
         String date = req.getParameter("date"); 
@@ -53,19 +55,18 @@ public class FabricationCRUD extends HttpServlet{
             Connection connection = utilDb.getConnection();
             req.setAttribute("fabrications", Fabrication.getByCriteria(connection, null, null, null));
             
-            connection.setAutoCommit(false);
             fabrication.insert(connection);
-            connection.commit();
+            req.setAttribute("message", "Insertion de fabrication effectuée");
+
 
         } catch(Exception err) {
-            err.printStackTrace();
             req.setAttribute("message", err.getMessage());
+            System.out.println("erreur est "+err.getMessage());
+            // err.printStackTrace();
 
         } finally{
-            connection.setAutoCommit(true);
-
+            // connection.setAutoCommit(true);
             processRequest(req, res);
-
         }
 
     }
@@ -79,8 +80,10 @@ public class FabricationCRUD extends HttpServlet{
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());
-            System.err.println(err);
+            System.out.println("Erreur remplacée "+err);
+        } finally {
+            rd.forward(req, res);
+
         }
-        rd.forward(req, res);
     }
 }

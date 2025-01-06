@@ -1,4 +1,5 @@
 <%@ include file="../templates/header.jsp" %>
+<%@page import="com.model.rapport.Rapport"%>
 
 
   <main id="main" class="main">
@@ -22,7 +23,7 @@
                     <h5 class="card-title">Résultat des Achats - Ventes</h5>
       
                     <!-- Horizontal Form -->
-                    <form>
+                    <form action="${pageContext.request.contextPath}/stat/achat" method="post">
                       <div class="row mb-3">
                         <label for="inputEmail3" class="col-sm-2 col-form-label">Date Min</label>
                         <div class="col-sm-10">
@@ -72,14 +73,11 @@
                   document.addEventListener("DOMContentLoaded", () => {
                     new ApexCharts(document.querySelector("#reportsChart"), {
                       series: [{
-                        name: 'Sales',
-                        data: [31, 40, 28, 51, 42, 82, 56],
+                        name: 'Ventes',
+                        data: [<%= request.getAttribute("ventes") %>],
                       }, {
-                        name: 'Revenue',
-                        data: [11, 32, 45, 32, 34, 52, 41]
-                      }, {
-                        name: 'Customers',
-                        data: [15, 11, 32, 18, 9, 24, 11]
+                        name: 'Achats',
+                        data: [<%= request.getAttribute("achats") %>],
                       }],
                       chart: {
                         height: 350,
@@ -110,11 +108,14 @@
                       },
                       xaxis: {
                         type: 'datetime',
-                        categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
+                        labels: {
+                          format: 'dd/MM/yyyy' // Pour s'assurer que le format est clair
+                        }
                       },
                       tooltip: {
+                       
                         x: {
-                          format: 'dd/MM/yy HH:mm'
+                          format: 'dd/MM/yyyy'
                         },
                       }
                     }).render();
@@ -148,14 +149,14 @@
               </div>
 
               <div class="card-body">
-                <h5 class="card-title">Ventes <span>| Aujourd'hui</span></h5>
+                <h5 class="card-title">Ventes <span>| Jusqu'à aujourd'hui</span></h5>
 
                 <div class="d-flex align-items-center">
                   <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                     <i class="bi bi-cart"></i>
                   </div>
                   <div class="ps-3">
-                    <h6>145</h6>
+                    <h6><%= ((Rapport)request.getAttribute("rapportVente")).getSommeMontant() %> Ar</h6>
                     <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">augmentation</span>
 
                   </div>
@@ -183,14 +184,14 @@
               </div>
 
               <div class="card-body">
-                <h5 class="card-title">Revenue <span>| Ce mois</span></h5>
+                <h5 class="card-title">Achat <span>| Jusqu'à aujourd'hui</span></h5>
 
                 <div class="d-flex align-items-center">
                   <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                     <i class="bi bi-currency-dollar"></i>
                   </div>
                   <div class="ps-3">
-                    <h6>$3,264</h6>
+                    <h6><%= ((Rapport)request.getAttribute("rapportAchat")).getSommeMontant() %> Ar</h6>
                     <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">augmentation</span>
 
                   </div>

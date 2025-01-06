@@ -54,6 +54,8 @@ public class IngredientCRUD extends HttpServlet{
             ingredient.insert(connection);
             connection.commit();
             connection.setAutoCommit(true);
+            req.setAttribute("message", "Insertion ingredient effectué");
+
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());
         }

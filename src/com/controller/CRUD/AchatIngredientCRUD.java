@@ -59,6 +59,8 @@ public class AchatIngredientCRUD extends HttpServlet{
             achatIngredient.insert(connection);
             connection.commit();
             connection.setAutoCommit(true);
+            req.setAttribute("message", "Achat effectué");
+
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());

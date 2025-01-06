@@ -18,12 +18,12 @@ create or replace view v_achat_ingredient_unite as
 -- Etat stock ingredient:
 
 create or replace view v_stock_ingredient as 
-    select idIngredient, sum(d_reste) as reste from achatIngredient group by idIngredient  
+    select idIngredient, sum(d_reste) as reste from achatIngredient group by idIngredient 
 
 create or replace view v_stock_ingredient_details as 
     select a.*, i.nom as nomIngredient , idUnite, u.nom as nomUnite 
     from v_stock_ingredient a join ingredient i on idIngredient = i.id 
-    join unite u on u.id = idUnite  
+    join unite u on u.id = idUnite    
 
 -- Stock  une date t :
  
