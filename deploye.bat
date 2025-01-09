@@ -15,31 +15,30 @@ set "bin=bin"
 set "index_page=test.html"
 
 rem Suppression et Création du dossier temporaire
-del /s /q "%temporaire%\*.*" > nul 2>&1
-rmdir /s /q "%temporaire%" > nul 2>&1
+del /s /q "%temporaire%\*.*"
+rmdir /s /q "%temporaire%" 
 
 rem Création du dossier temporaire
-mkdir "%temporaire%" > nul 2>&1
+mkdir "%temporaire%" 
 
 rem Création des dossiers nécessaires
-mkdir "%temporaire%\WEB-INF\lib" > nul 2>&1
-mkdir "%temporaire%\assets" > nul 2>&1
-mkdir "%bin%" > nul 2>&1
+mkdir "%temporaire%\WEB-INF\lib"
+mkdir "%temporaire%\assets"
+mkdir "%bin%"
 
 rem Copie du dossier lib, web, et xml
 echo "Copie des dossiers ..."
-copy "%index_page%" "%temporaire%" /Y > nul 2>&1
-xcopy "%assets%" "%temporaire%\assets" /E /I /Y > nul 2>&1
-xcopy "%lib%" "%temporaire%\WEB-INF\lib" /E /I /Y > nul 2>&1
-xcopy "%web%" "%temporaire%\WEB-INF\pages\" /E /I /Y > nul 2>&1
-copy "%xml%\*" "%temporaire%\WEB-INF\" /Y > nul 2>&1
+copy "%index_page%" "%temporaire%" /Y 
+xcopy "%assets%" "%temporaire%\assets" /E /I /Y 
+xcopy "%lib%" "%temporaire%\WEB-INF\lib" /E /I /Y 
+xcopy "%web%" "%temporaire%\WEB-INF\pages\" /E /I /Y 
+copy "%xml%\*" "%temporaire%\WEB-INF\" /Y 
 
 rem Compilation des fichiers Java
-echo "Compilation des fichiers ..."
 for /R "%src%" %%f in (*.java) do (
-    copy "%%f" "%bin%" > nul 2>&1
+    copy "%%f" "%bin%"  /Y 
 )
-
+echo "Compilation des fichiers ..."
 rem Compilation des fichiers Java
 javac -parameters -cp "%lib%\*" -d "%temporaire%\WEB-INF\classes" %bin%\*.java 
 
@@ -50,9 +49,9 @@ if errorlevel 1 (
 )
 
 rem Suppression des fichiers temporaires si aucune erreur n'est survenue
-del /s /q "%bin%\*.*" > nul 2>&1
-
+del /s /q "%bin%\*.*"  /E /Y /Q
+echo "Archivage des fichiers ..."
 rem Archivage des fichiers
-jar -cvf "%webapps%%nomProjet%.war" -C "%temporaire%" . > nul 2>&1
-
-endlocal
+jar -cvf "%webapps%%nomProjet%.war" -C "%temporaire%" .  /E /Y /Q
+echo "Finalisation"
+@REM endlocal

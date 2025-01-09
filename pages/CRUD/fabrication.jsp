@@ -1,10 +1,14 @@
 <%@ include file="../templates/header.jsp" %>
 <%@page import="com.model.produit.Produit"%>
+<%@page import="com.model.produit.type.Type"%>
+<%@page import="com.model.ingredient.Ingredient"%>
 <%@page import="com.model.production.fabrication.Fabrication"%>
 
 <% 
     Produit[] produits = (Produit[]) request.getAttribute("produits") ;
     Fabrication[] fabrications = (Fabrication[]) request.getAttribute("fabrications");
+    Type[] types = (Type[]) request.getAttribute("types");
+    Ingredient[] ingredients = (Ingredient[]) request.getAttribute("ingredients");
 
     if (request.getAttribute("message") != null) { %>
       <script type="text/javascript">
@@ -81,6 +85,28 @@
                               <option></option>
                               <% for(Produit produit : produits) {  %>
                                 <option value="<%= produit.getId() %>"><%= produit.getNom() %></option>
+                              <% } %>
+                            </select>                                
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Ingredient</label>
+                        <div class="col-sm-10">
+                            <select id="inputState" class="form-select" name="idIngredient">
+                              <option></option>
+                              <% for(Ingredient ingredient : ingredients) {  %>
+                                <option value="<%= ingredient.getId() %>"><%= ingredient.getNom() %></option>
+                              <% } %>
+                            </select>                                
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Type</label>
+                        <div class="col-sm-10">
+                            <select id="inputState" class="form-select" name="idType">
+                              <option></option>
+                              <% for(Type type : types) {  %>
+                                <option value="<%= type.getId() %>"><%= type.getNom() %></option>
                               <% } %>
                             </select>                                
                         </div>

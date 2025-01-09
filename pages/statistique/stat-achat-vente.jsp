@@ -1,6 +1,12 @@
 <%@ include file="../templates/header.jsp" %>
 <%@page import="com.model.rapport.Rapport"%>
-
+<% 
+    if (request.getAttribute("message") != null) { %>
+      <script type="text/javascript">
+          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
+      </script>
+  <% } 
+%>
 
   <main id="main" class="main">
 

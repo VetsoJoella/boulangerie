@@ -63,6 +63,11 @@
         </a>
         <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
+            <a href="${pageContext.request.contextPath}/CRUD/type">
+              <i class="bi bi-circle"></i><span>Type</span>
+            </a>
+          </li>
+            <li>
             <a href="${pageContext.request.contextPath}/CRUD/unite">
               <i class="bi bi-circle"></i><span>Unité</span>
             </a>

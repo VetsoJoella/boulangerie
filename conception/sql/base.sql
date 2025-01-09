@@ -4,6 +4,11 @@ CREATE TABLE unite(
    PRIMARY KEY(id)
 );
 
+CREATE TABLE type(
+   id VARCHAR(50) DEFAULT ('TYPE') || LPAD(nextval('s_type')::TEXT, 5, '0'),
+   nom VARCHAR(50)  NOT NULL,
+   PRIMARY KEY(id)
+);
 CREATE TABLE ingredient(
    id VARCHAR(50)  DEFAULT ('ING') || LPAD(nextval('s_ingredient')::TEXT, 5, '0'),
    nom VARCHAR(50)  NOT NULL,

@@ -44,3 +44,21 @@ create or replace view v_stock_produit_details as
 
 
 select p.id, nom, quantite from produit p join (select idProduit, sum(quantiteVente) as quantite from vente group by idProduit) as v on idProduit = p.id
+
+
+
+--- Ingredient produit 
+create or replace view v_recette_produit as 
+    select r.*, p.nom as nomProduit, d_prixVente, idType from recette r join produit p on p.id = r.idProduit  
+
+create or replace view v_recette_produit_details as 
+    select r.*, p.nom as nomType from v_recette_produit r join type p on p.id = r.idtype 
+
+--- Recette fabrication 
+create or replace view v_recette_fabrication_produit as 
+    select r.*, dateFabrication, quantiteFabrication, d_reste, f.id as idFabrication, idType from recette r 
+    join fabrication f on f.idProduit = r.idProduit join produit p on p.id = f.idProduit
+
+create or replace view v_recette_fabrication_produit_details as 
+    select v.*, p.nom as nomProduit, p.d_vente, p.idType from v_recette_fabrication_produit v join p on p.idProduit = idProduit  
+

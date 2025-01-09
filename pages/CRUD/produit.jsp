@@ -1,9 +1,14 @@
 <%@ include file="../templates/header.jsp" %>
 
+<%@page import="com.model.ingredient.unite.Unite"%>
 <%@page import="com.model.produit.Produit"%>
+<%@page import="com.model.produit.type.Type"%>
+<%@page import="com.model.ingredient.Ingredient"%>
+<%@page import="com.model.recette.Recette"%>
 
 <% 
     Produit[] produits = (Produit[]) request.getAttribute("produits");
+    Type[] types = (Type[])request.getAttribute("types");
 
     String id = "", nom = "";
     double prix = 0 ;
@@ -48,6 +53,17 @@
                     </div>
                   </div>
                   <div class="row mb-3">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Type</label>
+                    <div class="col-sm-10">
+                      <select id="inputState" class="form-select" name="idType">
+                        <% for(Type type : types ) {  %>
+                          <option value="<%= type.getId() %>"><%= type.getNom() %></option>
+                        <% } %>
+                      </select>                      
+                    </div>
+                  </div>
+                  
+                  <div class="row mb-3">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Prix vente</label>
                     <div class="col-sm-10">
                       <input type="number" class="form-control" id="inputText" name="prix" placeholder="8 000" value="<%= prix %>">
@@ -69,7 +85,24 @@
         <div class="card">
             <div class="card-body">
               <h5 class="card-title">Liste des produit</h5>
+                <form action="${pageContext.request.contextPath}/CRUD/produit" method="get">
+                    <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Type</label>
+                        <div class="col-sm-10">
+                           <select id="inputState" class="form-select" name="idType">
+                              <option></option>
 
+                             <% for(Type type : types) {  %>
+                                <option value="<%= type.getId() %>"><%= type.getNom() %></option>
+                            <% } %>
+                          </select>                                 
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Filtrer</button>
+                        <button type="reset" class="btn btn-secondary">Reset</button>
+                    </div>
+                </form>
               <!-- Table with hoverable rows -->
               <table class="table table-hover">
                 <thead>

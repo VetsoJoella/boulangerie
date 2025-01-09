@@ -1,5 +1,12 @@
 <%@ include file="../templates/header.jsp" %>
-
+<%@page import="com.model.production.vente.Vente"%>
+<% 
+    if (request.getAttribute("message") != null) { %>
+      <script type="text/javascript">
+          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
+      </script>
+  <% } 
+%>
 
   <main id="main" class="main">
 
@@ -22,7 +29,7 @@
                     <h5 class="card-title">Résultat des Achats - Ventes</h5>
       
                     <!-- Horizontal Form -->
-                    <form>
+                    <form action="${pageContext.request.contextPath}/stat/produit" method="post">
                       <div class="row mb-3">
                         <label for="inputEmail3" class="col-sm-2 col-form-label">Date Min</label>
                         <div class="col-sm-10">
@@ -61,68 +68,56 @@
                   <li><a class="dropdown-item" href="#">This Year</a></li>
                 </ul>
               </div>
+            <div class="card-body pb-0">
+              <h5 class="card-title">Website Traffic <span>| Today</span></h5>
 
-              <div class="card-body">
-                <h5 class="card-title">Reports <span>/Today</span></h5>
-
-                <!-- Line Chart -->
-                <div id="reportsChart"></div>
-
-                <script>
-                  document.addEventListener("DOMContentLoaded", () => {
-                    new ApexCharts(document.querySelector("#reportsChart"), {
-                      series: [{
-                        name: 'Pain au chocolat',
-                        data: [31, 40, 28, 51, 42, 82, 56],
-                      }, {
-                        name: 'Pain complet',
-                        data: [11, 32, 45, 32, 34, 52, 41]
-                      }, {
-                        name: 'Croissant',
-                        data: [15, 11, 32, 18, 9, 24, 11]
-                      }],
-                      chart: {
-                        height: 400,
-                        type: 'area',
-                        toolbar: {
-                          show: false
-                        },
+              <div id="trafficChart" style="min-height: 400px;" class="echart"></div>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  echarts.init(document.querySelector("#trafficChart")).setOption({
+                    tooltip: {
+                      trigger: 'item'
+                    },
+                    legend: {
+                      top: '5%',
+                      left: 'center'
+                    },
+                    series: [{
+                      name: 'Rapport vente',
+                      type: 'pie',
+                      radius: ['40%', '70%'],
+                      avoidLabelOverlap: false,
+                      label: {
+                        show: false,
+                        position: 'center'
                       },
-                      markers: {
-                        size: 5
-                      },
-                      colors: ['#4154f1', '#2eca6a', '#ff771d'],
-                      fill: {
-                        type: "gradient",
-                        gradient: {
-                          shadeIntensity: 1,
-                          opacityFrom: 0.3,
-                          opacityTo: 0.4,
-                          stops: [0, 90, 100]
+                      emphasis: {
+                        label: {
+                          show: true,
+                          fontSize: '18',
+                          fontWeight: 'bold'
                         }
                       },
-                      dataLabels: {
-                        enabled: false
+                      labelLine: {
+                        show: false
                       },
-                      stroke: {
-                        curve: 'smooth',
-                        width: 2
-                      },
-                      xaxis: {
-                        type: 'datetime',
-                        categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-                      },
-                      tooltip: {
-                        x: {
-                          format: 'dd/MM/yy HH:mm'
-                        },
-                      }
-                    }).render();
+                      data: [
+                        <% 
+                          if (request.getAttribute("ventes") != null) {
+                            Vente[] ventes = (Vente[]) request.getAttribute("ventes");
+                            for (Vente vente : ventes) { %>
+                              { value: <%= vente.getQuantite() %>, name: '<%= vente.getProduit().getNom() %>' },
+                            <% }
+                          } 
+                        %>
+                      ]
+                    }]
                   });
-                </script>
-                <!-- End Line Chart -->
+                });
+              </script>
 
-              </div>
+
+            </div>
 
             </div>
           </div><!-- End Reports -->
