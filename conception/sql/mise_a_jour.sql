@@ -12,3 +12,16 @@ REFERENCES type (id)
 
 
 insert into type(nom) values('pain'),('pizza')
+
+
+
+-- SELECT conname
+-- FROM pg_constraint
+-- WHERE conrelid = 'vente'::regclass AND contype = 'f';
+
+-- ALTER TABLE vente DROP CONSTRAINT vente_idproduit_fkey;
+
+ALTER TABLE vente
+ADD CONSTRAINT vente_idproduit_fkey
+FOREIGN KEY (idProduit) REFERENCES produitCaracteristique(id);
+

@@ -1,9 +1,14 @@
 <%@ include file="../templates/header.jsp" %>
 <%@page import="com.model.produit.Produit"%>
-<%@page import="com.model.production.vente.Vente"%>
+<%@page import="com.model.production.vente.*"%>
+<%@page import="com.model.produit.type.Type"%>
+<%@page import="com.model.caracteristique.Caracteristique"%>
 
 <% 
-    Produit[] produits = (Produit[]) request.getAttribute("produits");
+    // Produit[] produits = (Produit[]) request.getAttribute("produits");
+    ProduitCaracteristique[] produits = (ProduitCaracteristique[]) request.getAttribute("produits");
+    Type[] types = (Type[]) request.getAttribute("types");
+    Caracteristique[] caracteristiques = (Caracteristique[]) request.getAttribute("caracteristiques");
     Vente[] ventes = (Vente[]) request.getAttribute("ventes") ;
     if (request.getAttribute("message") != null) { %>
       <script type="text/javascript">
@@ -38,8 +43,8 @@
                         <label for="inputEmail3" class="col-sm-2 col-form-label">Produit</label>
                         <div class="col-sm-10">
                             <select id="inputState" class="form-select" name="idProduit">
-                              <% for(Produit produit : produits) {  %>
-                                <option value="<%= produit.getId() %>"><%= produit.getNom() %></option>
+                              <% for(ProduitCaracteristique produit : produits) {  %>
+                                <option value="<%= produit.getId() %>"><%= produit.getProduit().getNom() %>- <%= produit.getCaracteristique().getNom() %> </option>
                               <% } %>
                             </select>                                  
                         </div>
@@ -72,13 +77,35 @@
             <h5 class="card-title">Liste des ventes</h5>
             <div class="card-body">
                 <form method="get" action="${pageContext.request.contextPath}/CRUD/vente">
-                    <div class="row mb-3">
-                        <label for="inputEmail3" class="col-sm-2 col-form-label">Produit</label>
+                    <%-- <div class="row mb-3"> --%>
+                        <%-- <label for="inputEmail3" class="col-sm-2 col-form-label">Produit</label>
                         <div class="col-sm-10">
-                             <select id="inputState" class="form-select" name="idProduit">
-                                <option></option>
-                              <% for(Produit produit : produits) {  %>
+                             <select id="inputState" class="form-select" name="id">
+                                <option></option> --%>
+                              <%-- <% for(Produit produit : produits) {  %>
                                 <option value="<%= produit.getId() %>"><%= produit.getNom() %></option>
+                              <% } %> --%>
+                            <%-- </select>                                       --%>
+                        <%-- </div> --%>
+                    <%-- </div> --%>
+                    <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Type</label>
+                        <div class="col-sm-10">
+                             <select id="inputState" class="form-select" name="idType">
+                                <option></option>
+                              <% for(Type type : types) {  %>
+                                <option value="<%= type.getId() %>"><%= type.getNom() %></option>
+                              <% } %>
+                            </select>                                      
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Caracteristique</label>
+                        <div class="col-sm-10">
+                             <select id="inputState" class="form-select" name="idCaracteristique">
+                                <option></option>
+                              <% for(Caracteristique caracteristique : caracteristiques) {  %>
+                                <option value="<%= caracteristique.getId() %>"><%= caracteristique.getNom() %></option>
                               <% } %>
                             </select>                                      
                         </div>

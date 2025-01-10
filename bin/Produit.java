@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.exception.model.ValeurInvalideException;
+import com.model.caracteristique.Caracteristique;
 import com.model.produit.type.Type;
 
 public class Produit {
@@ -13,8 +14,17 @@ public class Produit {
     private double prixVente;
     private String nom;
     private Type type ;
-
+    private Caracteristique caracteristique;
     
+    
+
+    public Caracteristique getCaracteristique() {
+        return caracteristique;
+    }
+
+    public void setCaracteristique(Caracteristique caracteristique) {
+        this.caracteristique = caracteristique;
+    }
 
     public Type getType() {
         return type;

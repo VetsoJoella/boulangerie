@@ -10,12 +10,24 @@ import java.util.List;
 
 import com.exception.model.ValeurInvalideException;
 import com.exception.stock.StockInsuffisantException;
+import com.model.caracteristique.Caracteristique;
 import com.model.production.Production;
 import com.model.produit.Produit;
+import com.model.produit.type.Type;
 import com.model.stock.Stock;
 import com.model.stock.StockProduit;
 
 public class Vente extends Production{
+
+    // ProduitCaracteristique produitCaracteristique ;
+    
+    // public ProduitCaracteristique getProduitCaracteristique() {
+    //     return produitCaracteristique;
+    // }
+
+    // public void setProduitCaracteristique(ProduitCaracteristique produitCaracteristique) {
+    //     this.produitCaracteristique = produitCaracteristique;
+    // }
 
     // Constructeur 
     public Vente() {}
@@ -142,7 +154,7 @@ public class Vente extends Production{
     
     protected void insertMere(Connection connection) throws Exception {
 
-        if(getProduit().getPrixVente()==0) setProduit(Produit.getById(connection, getProduit().getId()));
+        // if(getProduit().getPrixVente()==0) setProduit(Produit.getById(connection, getProduit().getId()));
 
         String sql = "INSERT INTO vente (id, quantiteVente, dateVente, d_prixUnitaire, idProduit) VALUES (DEFAULT, ?, ?, ?, ?)";
         
@@ -165,15 +177,15 @@ public class Vente extends Production{
     @Override
     public void insert(Connection connection) throws Exception{
         
-        Stock stock = StockProduit.getStock(connection, getProduit());
+        // Stock stock = StockProduit.getStock(connection, getProduit());
 
-        verifierStockProduit(stock) ;
+        // verifierStockProduit(stock) ;
 
         connection.setAutoCommit(false);
         try {
 
             insertMere(connection);
-            stock.utiliserStock(getQuantite());
+            // stock.utiliserStock(getQuantite());
             connection.commit();
         } catch(Exception err) {
             connection.rollback();
@@ -217,6 +229,53 @@ public class Vente extends Production{
         return ventes.toArray(new Vente[0]);
     }
 
+    static Vente[] getByCriteria(Connection connection, Type type, Caracteristique caracteristique) throws Exception {
+        
+        List<Vente> ventes = new ArrayList<>();
+        String sql = "SELECT * "+
+                    " FROM v_vente_produit_caracteristique where 1=1 ";
+
+        if(type!=null && !type.getId().isEmpty()) sql+= "and idType = ? ";
+        else sql+= "and '1' = ? ";
+        if(caracteristique!=null && !caracteristique.getId().isEmpty()) sql+= "and idCaracteristique = ? ";
+        else sql+= "and '1' = ? ";
+
+          
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            System.out.println(sql);
+            if(type!=null) pstmt.setString(1, type.getId());
+            else pstmt.setString(1, "1");
+            if(caracteristique!=null) pstmt.setString(2, caracteristique.getId());
+            else pstmt.setString(2, "1");
+           
+            try (ResultSet rs = pstmt.executeQuery()) {
+
+                while (rs.next()) {
+                    String id = rs.getString("id");
+                    int quantiteVente = rs.getInt("quantitevente");
+                    Date dateVente = rs.getDate("dateVente");
+                      
+                    Produit p = new Produit(rs.getString("idProduit"), rs.getString("nomProduit"), rs.getDouble("d_prixunitaire"));
+    
+                    ventes.add(new Vente(id, quantiteVente, dateVente, p));
+                }
+            }
+        }
+       
+        return ventes.toArray(new Vente[0]);
+    }
+    public static Vente[] getByCriteria(Connection connection, String idType, String idCaracteristique) throws Exception {
+        
+        Type type = null;
+        Caracteristique caracteristique = null;
+        if(idType!=null && !idType.isEmpty()) type = new Type(idType);
+        if(idCaracteristique!=null && !idCaracteristique.isEmpty()) caracteristique = new Caracteristique(idCaracteristique);
+      
+        return getByCriteria(connection, type, caracteristique);
+       
+    }
+
+  
 }
 
 
