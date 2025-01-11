@@ -42,7 +42,7 @@ public class AchatStat extends HttpServlet{
         try {
             Connection connection = utilDb.getConnection();
 
-            Vente[] ventes = Vente.getByCriteria(connection, null, dateMin, dateMax);
+            Vente[] ventes = Vente.getByCriteria(connection, null, null, null, null, dateMin, dateMax);
             AchatIngredient[] achatIngredients = AchatIngredient.getByCriteria(connection, null, dateMin, dateMax);
 
             Rapport rapportVente = Vente.getRapport(ventes);

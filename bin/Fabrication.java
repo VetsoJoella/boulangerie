@@ -1,5 +1,6 @@
 package com.model.production.fabrication;
 
+import com.exception.DonneesManquantesException;
 import com.exception.model.ValeurInvalideException;
 import com.exception.stock.StockException;
 import com.exception.stock.StockInsuffisantException;
@@ -7,8 +8,9 @@ import com.model.ingredient.AchatIngredient;
 import com.model.ingredient.Ingredient;
 import com.model.production.Production;
 import com.model.produit.Produit;
-import com.model.produit.type.Type;
-import com.model.recette.Recette;
+import com.model.produit.base.ProduitBase;
+import com.model.produit.recette.Recette;
+import com.model.produit.variete.Variete;
 import com.model.stock.Stock;
 import com.model.stock.StockIngredient;
 
@@ -90,85 +92,50 @@ public class Fabrication extends Production{
     }
 
     // Méthode pour récupérer toutes les fabrications
-    static Fabrication[] getByCriteria(Connection connection, Produit produit, Date dateMin, Date dateMax) throws Exception {
+
+    static Fabrication[] getByCriteria(Connection connection, Produit produit, ProduitBase produitBase, Ingredient ingredient, Variete variete, Date dateMin, Date dateMax) throws Exception {
         
         List<Fabrication> fabrications = new ArrayList<>();
-        String sql = "SELECT f.id, f.quantiteFabrication, f.dateFabrication, f.d_reste, idProduit, p.nom AS nomProduit, p.d_prixVente " +
-                     "FROM fabrication f JOIN produit p ON f.idProduit = p.id where 1=1 ";
+        String sql = "SELECT * from v_fabrication_produit where 1=1 ";
 
         if(produit!=null) sql+= "and idProduit = ? ";
         else sql+= "and '1' = ? ";
-        if (dateMin!=null) sql+= "and dateFabrication >= ? ";
-        else sql+= "and '1' = ? ";
-        if (dateMax!=null) sql+= "and dateFabrication <= ? ";
-        else sql+= "and '1' = ? ";
-          
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
-            if(produit!=null) pstmt.setString(1, produit.getId());
-            else pstmt.setString(1, "1");
-            if(dateMin!=null) pstmt.setDate(2, dateMin);
-            else pstmt.setString(2, "1");
-            if(dateMax!=null) pstmt.setDate(3, dateMax);
-            else pstmt.setString(3, "1");
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-
-                while (rs.next()) {
-                    String id = rs.getString("id");
-                    int quantiteFabrication = rs.getInt("quantiteFabrication");
-                    Date dateFabrication = rs.getDate("dateFabrication");
-                    int reste = rs.getInt("d_reste");
-                      
-                    Produit p = new Produit(rs.getString("idProduit"), rs.getString("nomProduit"), rs.getDouble("d_prixVente"));
-    
-                    fabrications.add(new Fabrication(id, quantiteFabrication, dateFabrication, reste, p));
-                }
-            }
-        }
-       
-        return fabrications.toArray(new Fabrication[0]);
-    }
-
-    static Fabrication[] getByCriteria(Connection connection, Produit produit, Ingredient ingredient, Type type, Date dateMin, Date dateMax) throws Exception {
-        
-        List<Fabrication> fabrications = new ArrayList<>();
-        String sql = "SELECT * from  v_recette_fabrication_produit_details where 1=1 ";
-
-        if(produit!=null && !produit.getId().isEmpty()) sql+= "and idProduit = ? ";
-        else sql+= "and '1' = ? ";
-        if(ingredient!=null && !ingredient.getId().isEmpty()) sql+= "and idIngredient = ? ";
-        else sql+= "and '1' = ? ";
-        if(type!=null && !type.getId().isEmpty()) sql+= "and idType = ? ";
+        if(variete!=null ) sql+= "and idVariete = ? ";
         else sql+= "and '1' = ? ";
         if (dateMin!=null) sql+= "and dateFabrication >= ? ";
         else sql+= "and '1' = ? ";
         if (dateMax!=null) sql+= "and dateFabrication <= ? ";
         else sql+= "and '1' = ? ";
+        if (produitBase!=null) sql+= "and idProduitBase <= ? ";
+        else sql+= "and '1' = ? ";
+        if(ingredient!=null) sql+= "and idProduit in ( select idProduit from v_recette_produit where idIngredient = ?)  ";
           
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
             System.out.println("Requete est "+sql);
-            if(produit!=null && !produit.getId().isEmpty()) pstmt.setString(1, produit.getId());
+            if(produit!=null) pstmt.setString(1, produit.getId());
             else pstmt.setString(1, "1");
-            if(ingredient!=null && !ingredient.getId().isEmpty()) pstmt.setString(2, ingredient.getId());
+            if(variete!=null ) pstmt.setString(2, variete.getId());
             else pstmt.setString(2, "1");
-            if(type!=null && !type.getId().isEmpty()) pstmt.setString(3, type.getId());
+            if(dateMin!=null) pstmt.setDate(3, dateMin);
             else pstmt.setString(3, "1");
-            if(dateMin!=null) pstmt.setDate(4, dateMin);
+            if(dateMax!=null) pstmt.setDate(4, dateMax);
             else pstmt.setString(4, "1");
-            if(dateMax!=null) pstmt.setDate(5, dateMax);
+            if(produitBase!=null) pstmt.setString(5, produitBase.getId());
             else pstmt.setString(5, "1");
+            if(ingredient!=null) pstmt.setString(6, ingredient.getId());
+
 
             try (ResultSet rs = pstmt.executeQuery()) {
 
                 while (rs.next()) {
+
                     String id = rs.getString("id");
                     int quantiteFabrication = rs.getInt("quantiteFabrication");
                     Date dateFabrication = rs.getDate("dateFabrication");
                     int reste = rs.getInt("d_reste");
                       
-                    Produit p = new Produit(rs.getString("idProduit"), rs.getString("nomProduit"), rs.getDouble("d_prixVente"));
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
     
                     fabrications.add(new Fabrication(id, quantiteFabrication, dateFabrication, reste, p));
                 }
@@ -178,28 +145,14 @@ public class Fabrication extends Production{
         return fabrications.toArray(new Fabrication[0]);
     }
 
-    public static Fabrication[] getByCriteria(Connection connection, String idProduit, String dateMin, String dateMax) throws Exception {
+
+    public static Fabrication[] getByCriteria(Connection connection, String idProduit, String idProduitBase, String idIngredient, String idVariete, String dateMin, String dateMax) throws Exception {
         
         Date min = null, max = null ;
-        Produit produit = null;
-        try{
-            min = Date.valueOf(dateMin);
-        } catch(Exception err){}
-
-        try{
-            max = Date.valueOf(dateMax);
-        } catch(Exception err){}
-
-        return getByCriteria(connection, produit, min, max);
-       
-    }
-
-    public static Fabrication[] getByCriteria(Connection connection, String idProduit, String idIngredient, String idType, String dateMin, String dateMax) throws Exception {
-        
-        Date min = null, max = null ;
-        Produit produit = null;
+        Produit produit = null ;
+        ProduitBase produitBase = null;
         Ingredient ingredient = null ; 
-        Type type = null;
+        Variete type = null;
         try{
             min = Date.valueOf(dateMin);
         } catch(Exception err){}
@@ -207,20 +160,19 @@ public class Fabrication extends Production{
         try{
             max = Date.valueOf(dateMax);
         } catch(Exception err){}
-        if(idProduit!=null) produit = new Produit(idProduit);
-        if(idIngredient!=null) ingredient = new Ingredient(idIngredient);
-        if(idType!=null) type = new Type(idType)  ;
+        if(idProduit!=null && !idProduit.isEmpty()) produit = new Produit(idProduit);
+        if(idProduitBase!=null && !idProduitBase.isEmpty()) produitBase = new ProduitBase(idProduitBase);
+        if(idIngredient!=null && !idIngredient.isEmpty()) ingredient = new Ingredient(idIngredient);
+        if(idVariete!=null && idVariete.isEmpty()) type = new Variete(idVariete)  ;
 
-        return getByCriteria(connection, produit, ingredient, type, min, max);
+        return getByCriteria(connection, produit, produitBase, ingredient, type, min, max);
        
     }
 
     // Méthode pour récupérer une fabrication par ID
     public static Fabrication getById(Connection connection, String id) throws Exception {
-        String sql = "SELECT f.id, f.quantiteFabrication, f.dateFabrication, f.d_reste, p.id AS produit_id, p.nom AS produit_nom, p.d_prixVente " +
-                     "FROM fabrication f " +
-                     "JOIN produit p ON f.idProduit = p.id " +
-                     "WHERE f.id = ?";
+
+        String sql = "SELECT * from v_fabrication_produit WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -228,12 +180,7 @@ public class Fabrication extends Production{
                     int quantiteFabrication = rs.getInt("quantiteFabrication");
                     Date dateFabrication = rs.getDate("dateFabrication");
                     int reste = rs.getInt("d_reste");
-
-                    // Création de l'objet Produit associé
-                    String produitId = rs.getString("produit_id");
-                    String produitNom = rs.getString("produit_nom");
-                    double produitPrixVente = rs.getDouble("prixVente");
-                    Produit produit = new Produit(produitId, produitNom, produitPrixVente);
+                    Produit produit = Produit.getById(connection, rs.getString("idProduit"));
 
                     return new Fabrication(id, quantiteFabrication, dateFabrication, reste, produit);
                 }
@@ -247,10 +194,7 @@ public class Fabrication extends Production{
         
         List<Fabrication> fabrications = new ArrayList<>();
 
-        String sql = "SELECT f.id, f.quantiteFabrication, f.dateFabrication, f.d_reste, p.id AS produit_id, p.nom AS produit_nom, p.d_prixVente " +
-                     "FROM fabrication f " +
-                     "JOIN produit p ON f.idProduit = p.id " +
-                     "WHERE d_reste > 0 ";
+        String sql = "SELECT * from v_fabrication_produit WHERE d_reste > 0 ";
         if(produit!=null) sql+= " and idproduit = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             
@@ -262,10 +206,8 @@ public class Fabrication extends Production{
                     Date dateFabrication = rs.getDate("dateFabrication");
                     int reste = rs.getInt("d_reste");
 
-                    String produitId = rs.getString("produit_id");
-                    String produitNom = rs.getString("produit_nom");
-                    double produitPrixVente = rs.getDouble("d_prixVente");
-                    Produit p = new Produit(produitId, produitNom, produitPrixVente);
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
+
                     fabrications.add(new Fabrication(rs.getString("id"), quantiteFabrication, dateFabrication, reste, p));
                 }
             }
@@ -293,7 +235,7 @@ public class Fabrication extends Production{
         }
     }
 
-    private void verifierStockIngredient(Connection connection, Recette[] recettes, Stock[] stocks) throws Exception {
+    private void verifierStockIngredient(Recette[] recettes, Stock[] stocks) throws Exception {
 
         // Exception 
         List<StockInsuffisantException> exceptions = new ArrayList<>();
@@ -317,6 +259,7 @@ public class Fabrication extends Production{
     }
 
     void insertDetail(Connection connection, Recette recette) throws Exception {
+        
         String sql = "INSERT INTO detailFabrication (id, d_quantite, idIngredient, idFabrication) VALUES (DEFAULT, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setDouble(1, getQuantite()*recette.getQuantite());
@@ -327,7 +270,7 @@ public class Fabrication extends Production{
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (!generatedKeys.next()) {
                     // this.id = generatedKeys.getString(1); // Récupération de l'ID généré
-                    throw new SQLException("Les details de la farbication n'est pas insérée");
+                    throw new SQLException("Les details de la fabrication n'est pas insérée");
                 }
             }
         }
@@ -336,12 +279,12 @@ public class Fabrication extends Production{
     @Override
     public void insert(Connection connection) throws Exception{
         
-        Recette[] recettes = Recette.getByCriteria(connection, getProduit(), null);
+        Recette[] recettes = Recette.getByCriteria(connection, getProduit(), null, null, null);
         Stock[] stocks = StockIngredient.getStock(connection, recettes, getDate());
 
         connection.setAutoCommit(false);
         try {
-            verifierStockIngredient(connection, recettes, stocks) ;
+            verifierStockIngredient(recettes, stocks) ;
 
             insertMere(connection);
             for (int i = 0; i < stocks.length; i++) {
@@ -358,6 +301,34 @@ public class Fabrication extends Production{
         } finally{
             connection.setAutoCommit(true);
         }
+    }
 
+    public static void update(Connection connection, Fabrication[] fabrications) throws Exception {
+        
+        if (fabrications != null) {
+    
+            String sql = "UPDATE fabrication SET d_reste = ? WHERE id = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+                for (Fabrication fabrication : fabrications) {
+                    if (fabrication.getId() == null) {
+                        throw new DonneesManquantesException("Valeur de fabrication invalide : vérifiez vos données", fabrication);
+                    }
+                    // Remplir les paramètres pour chaque achat
+                    pstmt.setInt(1, fabrication.getReste());
+                    pstmt.setString(2, fabrication.getId());
+                    pstmt.addBatch(); // Ajouter au batch
+                }
+        
+                // Exécuter le batch
+                int[] results = pstmt.executeBatch();
+        
+                // Vérifier les résultats
+                for (int i = 0; i < results.length; i++) {
+                    if (results[i] == 0) {
+                        throw new SQLException("La mise à jour a échoué pour l'élément avec l'ID " + fabrications[i].getId());
+                    }
+                }
+            }
+        }
     }
 }

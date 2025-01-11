@@ -1,213 +1,234 @@
 package com.model.produit;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.exception.model.ValeurInvalideException;
-import com.model.caracteristique.Caracteristique;
-import com.model.produit.type.Type;
+import com.model.produit.base.ProduitBase;
+import com.model.produit.saveur.Saveur;
+import com.model.produit.variete.Variete;
 
 public class Produit {
-
-    private String id;
-    private double prixVente;
-    private String nom;
-    private Type type ;
-    private Caracteristique caracteristique;
     
-    
+    String id ; 
+    ProduitBase produitBase ;
+    Saveur saveur ;
+    double prixVente ;
 
-    public Caracteristique getCaracteristique() {
-        return caracteristique;
-    }
-
-    public void setCaracteristique(Caracteristique caracteristique) {
-        this.caracteristique = caracteristique;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    // Getters et setters
+    // Getter et Setter
     public String getId() {
         return id;
     }
-
     public void setId(String id) {
-        if(id!=null) {
-            this.id = id;
-        }
+        this.id = id;
     }
+
+    public ProduitBase getProduitBase() {
+        return produitBase;
+    }
+
+    public void setProduitBase(ProduitBase produitBase) {
+        this.produitBase = produitBase;
+    }
+
+    public void setProduitBase(String idProduitBase) {
+        setProduitBase(new ProduitBase(idProduitBase));
+    }
+
+    public Saveur getSaveur() {
+        return saveur;
+    }
+
+    public void setSaveur(Saveur saveur) {
+        this.saveur = saveur;
+    } 
+
+    public void setSaveur(String idSaveur) {
+        setSaveur(new Saveur(idSaveur));
+    } 
 
     public double getPrixVente() {
         return prixVente;
     }
 
-    public void setPrixVente(double prixVente) throws ValeurInvalideException{
-        if(prixVente<0) throw new ValeurInvalideException("Valeur de prix de vente ne peut pas etre négative");
-        else this.prixVente = prixVente;
+    public void setPrixVente(double prix) throws ValeurInvalideException {
+        if(prix<0) throw new ValeurInvalideException("Le prix ne peut pas etre négative");
+        else this.prixVente = prix;
     }
 
-    public void setPrixVente(String prixVente) throws ValeurInvalideException{
+    public void setPrixVente(String prix) throws ValeurInvalideException {
         try {
-            double prix = Double.valueOf(prixVente) ;
-            setPrixVente(prix);
-        } catch(Exception err) {
-            throw new ValeurInvalideException("Valeur de prix de vente non numérique");
+            double d = Double.valueOf(prix);
+            setPrixVente(d);
+        } catch (Exception e) {
+            throw new ValeurInvalideException("Valeur de prix invalide");
         }
-       
     }
 
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    // Constructeurs
-    public Produit() {}
+    public Produit() {    }
 
     public Produit(String id) {
         setId(id);
     }
 
-    public Produit(String nom, double prixVente) throws ValeurInvalideException {
-        setPrixVente(prixVente);
-        setNom(nom);
-    }
-
-    public Produit(String id, String nom, double prixVente) throws ValeurInvalideException {
+    public Produit(String id, ProduitBase produit, Saveur saveur) {
         setId(id);
-        setPrixVente(prixVente);
-        setNom(nom);
+        setProduitBase(produit);
+        setSaveur(saveur);
     }
 
-    public Produit(String id, String nom, String prixVente) throws ValeurInvalideException {
+    public Produit(String id, ProduitBase produit, Saveur saveur, double prix) throws ValeurInvalideException{
         setId(id);
-        setPrixVente(prixVente);
-        setNom(nom);
-    }  
-
-    @Override
-    public String toString() {
-        return "Produit{" +
-               "id='" + id + '\'' +
-               ", prixVente=" + prixVente +
-               ", nom='" + nom + '\'' +
-               '}';
+        setProduitBase(produit);
+        setSaveur(saveur);
+        setPrixVente(prix);
     }
 
-    // Méthode pour insérer un produit
-    public void insert(Connection connection) throws Exception {
-        connection.setAutoCommit(false);
+    public Produit(String idProduitBase, String idSaveur, String prix) throws ValeurInvalideException{
+        setProduitBase(idProduitBase);
+        setSaveur(idSaveur);
+        setPrixVente(prix);
+    }
 
-        String sql = "INSERT INTO produit (id, d_prixVente, nom, idType) VALUES (DEFAULT, ?, ?, ?)";
+    // CRUD
+    public static Produit[] getAll(Connection connection) throws Exception {
+        
+        List<Produit> produits = new ArrayList<>();
+        String sql = "SELECT * from v_produit_saveur_variete_detail ";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)){
+            System.out.println("La requete est "+sql);
+            try(ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+
+                    String id = rs.getString("id");
+                    String idProduitBase = rs.getString("idProduitBase");
+                    double prix = rs.getDouble("d_prixvente");
+
+                    Variete variete = new Variete(rs.getString("idVariete"), rs.getString("nomVariete"));
+                    Saveur saveur = new Saveur(rs.getString("idSaveur"), rs.getString("nomSaveur"));
+                    
+                    ProduitBase produitBase = ProduitBase.getById(connection, idProduitBase) ;
+
+                    produitBase.setVariete(variete);
+
+                    // produitBase.setSaveur(saveur);
+                    produits.add(new Produit(id, produitBase, saveur, prix));
+                }
+            }
+        }
+        return produits.toArray(new Produit[0]);
+    }
+
+    public static Produit getById(Connection connection, String idProduit) throws Exception {
+        
+        String sql = "SELECT * from v_produit_saveur_variete_detail WHERE 1=1 ";
+        if(idProduit!=null) sql+= " and id = ? ";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)){
+            if(idProduit!=null) stmt.setString(1, idProduit);
+            try(ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+
+                    String id = rs.getString("id");
+                    String idProduitBase = rs.getString("idProduitBase");
+                    double prix = rs.getDouble("d_prixvente");
+
+                    Variete variete = new Variete(rs.getString("idVariete"), rs.getString("nomVariete"));
+                    Saveur saveur = new Saveur(rs.getString("idSaveur"), rs.getString("nomSaveur"));
+                    
+                    ProduitBase produitBase = ProduitBase.getById(connection, idProduitBase) ;
+
+                    produitBase.setVariete(variete);
+
+                    // produitBase.setSaveur(saveur);
+                    return (new Produit(id, produitBase, saveur, prix));
+                }
+            }
+        }
+        return null ;
+    }
+
+
+    public void insert(Connection connection) throws Exception{
+
+        String sql = "INSERT INTO produit(id, idProduitBase, idSaveur, d_prixVente) VALUES (DEFAULT, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setDouble(1, getPrixVente());
-            pstmt.setString(2, getNom());
-            pstmt.setString(3, getType().getId());
+            pstmt.setString(1, getProduitBase().getId());
+            pstmt.setString(2, getSaveur().getId());
+            pstmt.setDouble(3, getPrixVente());
             pstmt.executeUpdate();
-
 
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     setId(generatedKeys.getString(1)); // Récupération de l'ID généré
-                    HistoriqueProduit historiqueProduit = new HistoriqueProduit(this, null, getPrixVente());
-                    historiqueProduit.insert(connection);
+                   enregistrerHistorique(connection);
                 } else throw new Exception("Aucune ligne de donnée inséree ");
             }
-            connection.commit();
-        } catch(Exception err) {
-            connection.rollback();
-            throw err ;
-
-        }
+        } 
     }
 
-    // Méthode pour récupérer tous les produits
-    public static Produit[] getAll(Connection connection) throws Exception {
-        
-        List<Produit> produits = new ArrayList<>();
-        String sql = "SELECT id, d_prixVente, nom, idType FROM produit";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                String id = rs.getString("id");
-                double prixVente = rs.getDouble("d_prixVente");
-                String nom = rs.getString("nom");
-                Produit produit = new Produit(id, nom, prixVente) ;
-                produit.setType(Type.getById(connection, rs.getString("idType")));
-                produits.add(produit);
-            }
-        }
-        return produits.toArray(new Produit[0]);
+    public static Produit[] getByCriteria(Connection connection, String idProduitBase, String idSaveur, String idVariete) throws Exception {
+
+        ProduitBase produitBase = null ;
+        Saveur saveur = null ;
+        Variete variete = null ; 
+        if(idProduitBase!=null && !idProduitBase.isEmpty()) produitBase = new ProduitBase(idProduitBase);
+        if(idSaveur!=null && !idSaveur.isEmpty()) saveur = new Saveur(idSaveur);
+        if(idVariete!=null && !idVariete.isEmpty()) variete = new Variete(idVariete);
+        return getByCriteria(connection, produitBase, saveur, variete);
     }
 
-    static Produit[] getByCriteria(Connection connection, Type type) throws Exception {
+    static Produit[] getByCriteria(Connection connection, ProduitBase produitBase, Saveur saveur, Variete variete) throws Exception {
         
         List<Produit> produits = new ArrayList<>();
-        String sql = "SELECT id, d_prixVente, nom, idType FROM produit where 1 = 1 ";
-        if(type!=null) sql+= "and idType = ? ";
+        String sql = "SELECT * from v_produit_saveur WHERE 1=1 ";
+        if(produitBase!=null) sql+= "and idProduitBase = ? ";
+        else sql+="and '1'= ? ";
+        if(saveur!=null) sql+= "and idSaveur = ? ";
+        else sql+="and '1'= ? ";
+        if(variete!=null) sql+= "and idVariete = ? ";
         try (PreparedStatement stmt = connection.prepareStatement(sql)){
-            if(type!=null) stmt.setString(1, type.getId());
-            System.out.println("La requete est "+sql);
+            System.out.println("Get y criteria de produit "+sql);
+            if(produitBase!=null) stmt.setString(1, produitBase.getId());
+            else stmt.setString(1, "1");
+            if(saveur!=null) stmt.setString(2, saveur.getId());
+            else stmt.setString(2, "1");
+            if(variete!=null) stmt.setString(3, variete.getId());
+
             try(ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
+
                     String id = rs.getString("id");
-                    double prixVente = rs.getDouble("d_prixVente");
-                    String nom = rs.getString("nom");
-                    Produit produit = new Produit(id, nom, prixVente) ;
-                    produit.setType(Type.getById(connection, rs.getString("idType")));
-                    produits.add(produit);
+                    String idProduitBase = rs.getString("idProduitBase");
+                    double prix = rs.getDouble("d_prixvente");
+
+                    Variete v = new Variete(rs.getString("idVariete"), rs.getString("nomVariete"));
+                    Saveur s = new Saveur(rs.getString("idSaveur"), rs.getString("nomSaveur"));
+                    
+                    ProduitBase p = ProduitBase.getById(connection, idProduitBase) ;
+                    p.setVariete(v);
+
+                    // produitBase.setSaveur(saveur);
+                    produits.add(new Produit(id, p, s, prix));
                 }
             }
         }
         return produits.toArray(new Produit[0]);
-    }
-
-    public static Produit[] getByCriteria(Connection connection, String idType) throws Exception{
-        Type type = null ;
-        if(idType!=null) type = new Type(idType);
-        return getByCriteria(connection, type);
-    }
-
-    public static Produit getById(Connection connection, String id) throws Exception {
-
-        String sql = "SELECT id, d_prixVente, nom FROM produit WHERE id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, id);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    double prixVente = rs.getDouble("d_prixVente");
-                    String nom = rs.getString("nom");
-                    Produit produit = new Produit(id, nom, prixVente) ;
-                    produit.setType(Type.getById(connection, rs.getString("idType")));
-                    return produit ;
-                }
-            }
-        }
-        return null; 
     }
 
     public void update(Connection connection) throws Exception {
+     
         connection.setAutoCommit(false);
-        String sql = "UPDATE produit SET nom = ?, d_prixVente = ? WHERE id = ?";
+        String sql = "UPDATE produit SET d_prixVente = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, getNom());
-            pstmt.setDouble(2, getPrixVente());
-            pstmt.setString(3, getId());
+            pstmt.setDouble(1, getPrixVente());
+            pstmt.setString(2, getId());
             pstmt.executeUpdate();
 
-            HistoriqueProduit historiqueProduit = new HistoriqueProduit(this, null, getPrixVente());
-            historiqueProduit.insert(connection);
+           enregistrerHistorique(connection);
             connection.commit();
 
         } catch(Exception err) {
@@ -216,11 +237,9 @@ public class Produit {
         }
     }
 
-    public void delete(Connection connection) throws Exception {
-        String sql = "DELETE FROM produit WHERE id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, getId());
-            pstmt.executeUpdate();
-        }
+    private void enregistrerHistorique(Connection connection) throws Exception{
+        HistoriqueProduit historiqueProduit = new HistoriqueProduit(this, null, getPrixVente());
+        historiqueProduit.insert(connection);
     }
+
 }

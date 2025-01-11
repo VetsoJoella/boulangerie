@@ -193,7 +193,7 @@ public class AchatIngredient {
         else sql+= "and '1' = ? ";
         sql+= "order by dateachat asc";
 
-        
+        System.out.println("requete de getByCriteria de achat est "+sql);
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
             if(ingredient!=null) pstmt.setString(1, ingredient.getId());
@@ -215,7 +215,7 @@ public class AchatIngredient {
                     AchatIngredient achatIngredient = new AchatIngredient(rs.getString("id"), i, rs.getDate("dateachat"), rs.getDouble("prixunitaire"), rs.getDouble("quantiteachete"));
                     achatIngredient.setReste(rs.getDouble("d_reste"));
                     achatIngredients.add(achatIngredient);
-                    System.out.println(achatIngredient.toString());
+                    // System.out.println(achatIngredient.toString());
                 }
             }
         }
@@ -332,7 +332,7 @@ public class AchatIngredient {
         }
     }
 
-     public static Rapport getRapport(AchatIngredient[] achatIngredients){
+    public static Rapport getRapport(AchatIngredient[] achatIngredients){
         
         double sommeMontant = 0, sommeQuantite = 0 ;
         Map<String,Double> maps = new LinkedHashMap<>();

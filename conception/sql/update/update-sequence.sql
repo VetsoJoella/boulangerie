@@ -1,0 +1,1 @@
+ALTER SEQUENCE s_ingredient RESTART WITH 1;

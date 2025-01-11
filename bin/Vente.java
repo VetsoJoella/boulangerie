@@ -10,24 +10,16 @@ import java.util.List;
 
 import com.exception.model.ValeurInvalideException;
 import com.exception.stock.StockInsuffisantException;
-import com.model.caracteristique.Caracteristique;
 import com.model.production.Production;
+import com.model.production.fabrication.Fabrication;
 import com.model.produit.Produit;
-import com.model.produit.type.Type;
+import com.model.produit.base.ProduitBase;
+import com.model.produit.saveur.Saveur;
+import com.model.produit.variete.Variete;
 import com.model.stock.Stock;
 import com.model.stock.StockProduit;
 
 public class Vente extends Production{
-
-    // ProduitCaracteristique produitCaracteristique ;
-    
-    // public ProduitCaracteristique getProduitCaracteristique() {
-    //     return produitCaracteristique;
-    // }
-
-    // public void setProduitCaracteristique(ProduitCaracteristique produitCaracteristique) {
-    //     this.produitCaracteristique = produitCaracteristique;
-    // }
 
     // Constructeur 
     public Vente() {}
@@ -59,94 +51,15 @@ public class Vente extends Production{
                 '}';
     }
 
-    // Acces dans la base de données 
-
-    static Vente[] getByCriteria(Connection connection, Produit produit, Date dateMin, Date dateMax) throws Exception {
-        
-        List<Vente> ventes = new ArrayList<>();
-        String sql = "SELECT v.id, v.quantiteVente, v.dateVente, v.d_prixUnitaire, idProduit, p.nom AS nomProduit "+
-                    " FROM vente v JOIN produit p ON v.idProduit = p.id where 1=1 ";
-
-        if(produit!=null) sql+= "and idProduit = ? ";
-        else sql+= "and '1' = ? ";
-        if (dateMin!=null) sql+= "and dateVente >= ? ";
-        else sql+= "and '1' = ? ";
-        if (dateMax!=null) sql+= "and dateVente <= ? ";
-        else sql+= "and '1' = ? ";
-        sql+= "order by dateVente asc";
-
-          
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
-            if(produit!=null) pstmt.setString(1, produit.getId());
-            else pstmt.setString(1, "1");
-            if(dateMin!=null) pstmt.setDate(2, dateMin);
-            else pstmt.setString(2, "1");
-            if(dateMax!=null) pstmt.setDate(3, dateMax);
-            else pstmt.setString(3, "1");
-            // System.out.println("Requete de vente est "+sql);
-            try (ResultSet rs = pstmt.executeQuery()) {
-
-                while (rs.next()) {
-                    String id = rs.getString("id");
-                    int quantiteVente = rs.getInt("quantitevente");
-                    Date dateVente = rs.getDate("dateVente");
-                      
-                    Produit p = new Produit(rs.getString("idProduit"), rs.getString("nomProduit"), rs.getDouble("d_prixunitaire"));
-    
-                    ventes.add(new Vente(id, quantiteVente, dateVente, p));
-                }
-            }
-        }
-       
-        return ventes.toArray(new Vente[0]);
-    }
-
-    public static Vente[] getByCriteria(Connection connection, String idProduit, String dateMin, String dateMax) throws Exception {
-        
-        Date min = null, max = null ;
-        Produit produit = null;
-        if(idProduit!=null) produit = new Produit(idProduit);
-        try{
-            min = Date.valueOf(dateMin);
-        } catch(Exception err){}
-
-        try{
-            max = Date.valueOf(dateMax);
-        } catch(Exception err){}
-
-        return getByCriteria(connection, produit, min, max);
-       
-    }
-
-    // Méthode pour récupérer une fabrication par ID
-    public static Vente getById(Connection connection, String id) throws Exception {
-        
-        String sql = "SELECT v.id, v.quantiteVente, v.dateVente, v.d_prixUnitaire, idProduit, p.nom AS nomProduit "+
-                    " FROM vente v JOIN produit p ON v.idProduit = p.id where 1=1 and id = ? ";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, id);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    int quantiteVente = rs.getInt("quantitevente");
-                    Date dateVente = rs.getDate("dateVente");
-                      
-                    Produit p = new Produit(rs.getString("idProduit"), rs.getString("nomProduit"), rs.getDouble("d_prixunitaire"));
-
-                    new Vente(id, quantiteVente, dateVente, p);
-                }
-            }
-        }
-        return null; // Aucune fabrication trouvée
-    }
 
     // Autres 
     void verifierStockProduit(Stock stock) throws StockInsuffisantException {
 
+        if(stock==null) throw new StockInsuffisantException("Aucune fabrication n'a été encore faite ave ce produit", stock);
+
         if(getQuantite()>stock.getQuantite()) { 
 
-            String message = "Stock produit "+getProduit().getNom()+" insuffisant ";
+            String message = "Stock produit "+getProduit().getProduitBase().getNom()+" insuffisant ";
             throw new StockInsuffisantException(message, stock);
         }
     }
@@ -179,19 +92,42 @@ public class Vente extends Production{
         
         Stock stock = StockProduit.getStock(connection, getProduit());
 
-        // verifierStockProduit(stock) ;
+        verifierStockProduit(stock) ;
 
         connection.setAutoCommit(false);
         try {
 
             insertMere(connection);
-            // stock.utiliserStock(getQuantite());
+            stock.utiliserStock(getQuantite());
+            Fabrication.update(connection, ((StockProduit)stock).getFabrications());
             connection.commit();
         } catch(Exception err) {
             connection.rollback();
             throw err ; 
         }
 
+    }
+
+     // Méthode pour récupérer une fabrication par ID
+    public static Vente getById(Connection connection, String id) throws Exception {
+        
+        String sql = "SELECT v.id, v.quantiteVente, v.dateVente, v.d_prixUnitaire, idProduit, p.nom AS nomProduit "+
+                    " FROM vente v JOIN produit p ON v.idProduit = p.id where 1=1 and id = ? ";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int quantiteVente = rs.getInt("quantitevente");
+                    Date dateVente = rs.getDate("dateVente");
+                      
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
+
+                    new Vente(id, quantiteVente, dateVente, p);
+                }
+            }
+        }
+        return null; // Aucune fabrication trouvée
     }
 
     // Meilleur vente 
@@ -220,7 +156,7 @@ public class Vente extends Production{
 
                 while (rs.next()) {
                     
-                    Produit p = new Produit(rs.getString("id"), rs.getString("nom"), 0);
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
 
                     ventes.add(new Vente(null, rs.getInt("quantite"), null, p));
                 }
@@ -229,25 +165,39 @@ public class Vente extends Production{
         return ventes.toArray(new Vente[0]);
     }
 
-    static Vente[] getByCriteria(Connection connection, Type type, Caracteristique caracteristique) throws Exception {
+    static Vente[] getByCriteria(Connection connection, Produit produit, ProduitBase produitBase, Variete variete, Saveur saveur, Date dateMin, Date dateMax) throws Exception {
         
         List<Vente> ventes = new ArrayList<>();
         String sql = "SELECT * "+
-                    " FROM v_vente_produit_caracteristique where 1=1 ";
+                    " FROM v_vente_produit where 1=1 ";
 
-        if(type!=null && !type.getId().isEmpty()) sql+= "and idType = ? ";
+        if(variete!=null && !variete.getId().isEmpty()) sql+= "and idVariete = ? ";
         else sql+= "and '1' = ? ";
-        if(caracteristique!=null && !caracteristique.getId().isEmpty()) sql+= "and idCaracteristique = ? ";
+        if(saveur!=null && !saveur.getId().isEmpty()) sql+= "and idSaveur = ? ";
         else sql+= "and '1' = ? ";
-
+        if(produit!=null && !produit.getId().isEmpty()) sql+= "and idProduit = ? ";
+        else sql+= "and '1' = ? ";
+        if(produitBase!=null && !produitBase.getId().isEmpty()) sql+= "and idProduitBase = ? ";
+        else sql+= "and '1' = ? ";
+        if(dateMin!=null) sql+= "and dateVente >= ? ";
+        else sql+= "and '1' = ? ";
+        if(dateMax!=null) sql+= "and dateVente<= ? ";
           
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             System.out.println(sql);
-            if(type!=null) pstmt.setString(1, type.getId());
+            if(variete!=null) pstmt.setString(1, variete.getId());
             else pstmt.setString(1, "1");
-            if(caracteristique!=null) pstmt.setString(2, caracteristique.getId());
+            if(saveur!=null) pstmt.setString(2, saveur.getId());
             else pstmt.setString(2, "1");
-           
+            if(produit!=null) pstmt.setString(3, produit.getId());
+            else pstmt.setString(3, "1");
+            if(produitBase!=null) pstmt.setString(4, produitBase.getId());
+            else pstmt.setString(4, "1");
+            if(dateMin!=null) pstmt.setDate(5, dateMin);
+            else pstmt.setString(5, "1");
+            if(dateMax!=null) pstmt.setDate(5, dateMax);
+
+
             try (ResultSet rs = pstmt.executeQuery()) {
 
                 while (rs.next()) {
@@ -255,8 +205,7 @@ public class Vente extends Production{
                     int quantiteVente = rs.getInt("quantitevente");
                     Date dateVente = rs.getDate("dateVente");
                       
-                    Produit p = new Produit(rs.getString("idProduit"), rs.getString("nomProduit"), rs.getDouble("d_prixunitaire"));
-    
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
                     ventes.add(new Vente(id, quantiteVente, dateVente, p));
                 }
             }
@@ -264,14 +213,23 @@ public class Vente extends Production{
        
         return ventes.toArray(new Vente[0]);
     }
-    public static Vente[] getByCriteria(Connection connection, String idType, String idCaracteristique) throws Exception {
+
+    public static Vente[] getByCriteria(Connection connection, String idProduit, String idProduitBase, String idVariete, String idSaveur, String dateDebut, String dateFin) throws Exception {
         
-        Type type = null;
-        Caracteristique caracteristique = null;
-        if(idType!=null && !idType.isEmpty()) type = new Type(idType);
-        if(idCaracteristique!=null && !idCaracteristique.isEmpty()) caracteristique = new Caracteristique(idCaracteristique);
-      
-        return getByCriteria(connection, type, caracteristique);
+        Variete variete = null;
+        Saveur saveur = null;
+        Produit produit = null ;
+        ProduitBase produitBase = null ;
+        Date min = null , max = null ;
+
+        if(idVariete!=null && !idVariete.isEmpty()) variete = new Variete(idVariete);
+        if(idSaveur!=null && !idSaveur.isEmpty()) saveur = new Saveur(idSaveur);
+        if(idProduit!=null && !idProduit.isEmpty()) produit = new Produit(idProduit);
+        if(idProduitBase!=null && !idProduitBase.isEmpty()) produitBase = new ProduitBase(idProduitBase);
+        if(dateDebut!=null) min = Date.valueOf(dateDebut);
+        if(dateFin!=null) max = Date.valueOf(dateFin);
+
+        return getByCriteria(connection, produit, produitBase, variete, saveur, min, max);
        
     }
 

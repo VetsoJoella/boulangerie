@@ -9,6 +9,8 @@ import java.util.List;
 import java.sql.Date;
 
 import com.exception.DonneesManquantesException;
+import com.model.produit.base.ProduitBase;
+import com.model.produit.saveur.Saveur;
 
 public class HistoriqueProduit {
     
@@ -99,7 +101,7 @@ public class HistoriqueProduit {
     public static HistoriqueProduit[] getByCriteria(Connection connection, String idProduit) throws Exception {
         
         List<HistoriqueProduit> listeProduits = new ArrayList<>();
-        String sql = "SELECT h.id, idProduit, dateProduit, prixProduit, nom FROM produit p join historiqueprixproduit h on p.id = idProduit ";
+        String sql = "SELECT * FROM v_historique_produit_produitBase_detail v ";
         if(idProduit!=null) sql+= " and idProduit = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -111,7 +113,9 @@ public class HistoriqueProduit {
                     String id = rs.getString("id");
                     double prixVente = rs.getDouble("prixProduit");
                     Date date = rs.getDate("dateProduit");
-                    Produit produit = new Produit(rs.getString("idProduit"),rs.getString("nom"),0);
+                    Saveur saveur = new Saveur(rs.getString("idSaveur"), rs.getString("nomSaveur"));
+                    ProduitBase produitBase = new ProduitBase(rs.getString("idProduitBase"), rs.getString("nomProduitBase"));
+                    Produit produit = new Produit(rs.getString("idProduit"),produitBase, saveur);
                     listeProduits.add(new HistoriqueProduit(id, produit, date, prixVente));
                 }
             }

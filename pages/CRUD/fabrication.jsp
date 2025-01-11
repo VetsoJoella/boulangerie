@@ -1,13 +1,13 @@
 <%@ include file="../templates/header.jsp" %>
 <%@page import="com.model.produit.Produit"%>
-<%@page import="com.model.produit.type.Type"%>
+<%@page import="com.model.produit.variete.Variete"%>
 <%@page import="com.model.ingredient.Ingredient"%>
 <%@page import="com.model.production.fabrication.Fabrication"%>
 
 <% 
     Produit[] produits = (Produit[]) request.getAttribute("produits") ;
     Fabrication[] fabrications = (Fabrication[]) request.getAttribute("fabrications");
-    Type[] types = (Type[]) request.getAttribute("types");
+    Variete[] varietes = (Variete[]) request.getAttribute("varietes");
     Ingredient[] ingredients = (Ingredient[]) request.getAttribute("ingredients");
 
     if (request.getAttribute("message") != null) { %>
@@ -45,7 +45,7 @@
                         <div class="col-sm-10">
                            <select id="inputState" class="form-select" name="idProduit">
                               <% for(Produit produit : produits) {  %>
-                                <option value="<%= produit.getId() %>"><%= produit.getNom() %></option>
+                                <option value="<%= produit.getId() %>"><%= produit.getProduitBase().getNom() %>-<%= produit.getSaveur().getNom() %></option>
                               <% } %>
                             </select>                                   
                         </div>
@@ -79,17 +79,6 @@
             <div class="card-body">
                 <form action="${pageContext.request.contextPath}/CRUD/fabrication" method="get">
                     <div class="row mb-3">
-                        <label for="inputEmail3" class="col-sm-2 col-form-label">Produit</label>
-                        <div class="col-sm-10">
-                            <select id="inputState" class="form-select" name="idProduit">
-                              <option></option>
-                              <% for(Produit produit : produits) {  %>
-                                <option value="<%= produit.getId() %>"><%= produit.getNom() %></option>
-                              <% } %>
-                            </select>                                
-                        </div>
-                    </div>
-                    <div class="row mb-3">
                         <label for="inputEmail3" class="col-sm-2 col-form-label">Ingredient</label>
                         <div class="col-sm-10">
                             <select id="inputState" class="form-select" name="idIngredient">
@@ -101,29 +90,16 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label for="inputEmail3" class="col-sm-2 col-form-label">Type</label>
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Variete</label>
                         <div class="col-sm-10">
-                            <select id="inputState" class="form-select" name="idType">
+                            <select id="inputState" class="form-select" name="idVariete">
                               <option></option>
-                              <% for(Type type : types) {  %>
-                                <option value="<%= type.getId() %>"><%= type.getNom() %></option>
+                              <% for(Variete variete : varietes) {  %>
+                                <option value="<%= variete.getId() %>"><%= variete.getNom() %></option>
                               <% } %>
                             </select>                                
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <label for="inputEmail3" class="col-sm-2 col-form-label">Date min</label>
-                        <div class="col-sm-10">
-                          <input type="date" class="form-control" id="inputText" name="dateMin">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="inputEmail3" class="col-sm-2 col-form-label">Date max</label>
-                        <div class="col-sm-10">
-                          <input type="date" class="form-control" id="inputText" name="dateMax">
-                        </div>
-                    </div>
-                   
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary">Filtrer</button>
                         <button type="reset" class="btn btn-secondary">Reset</button>
@@ -136,7 +112,7 @@
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Date vente</th>
+                    <th scope="col">Date fabrication</th>
                     <th scope="col">Produit</th>
                     <th scope="col">Quantité</th>
                   </tr>
@@ -147,7 +123,7 @@
                           <tr>
                             <th scope="row"><%= fabrication.getId() %></th>
                             <td><%= fabrication.getDate() %></td>
-                            <td><%= fabrication.getProduit().getNom() %></td>
+                            <td><%= fabrication.getProduit().getProduitBase().getNom() %>-<%= fabrication.getProduit().getSaveur().getNom() %></td>
                             <td><%= fabrication.getQuantite() %></td>
                           </tr>
                     <% } 

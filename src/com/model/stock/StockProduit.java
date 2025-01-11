@@ -54,12 +54,12 @@ public class StockProduit extends Stock {
 
         List<Stock> stocks = new ArrayList<>();
 
-        String sql = "SELECT * FROM v_stock_produit_details WHERE 1=1 ";
+        String sql = "SELECT * FROM v_stockProduit WHERE 1=1 ";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Produit p = new Produit(rs.getString("idproduit"), rs.getString("nomproduit"), rs.getDouble("d_prixVente"));
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
                     StockProduit stock = new StockProduit(p, rs.getDouble("reste"));
                     stock.setFabrications(connection);
                     stocks.add(stock);
@@ -73,7 +73,7 @@ public class StockProduit extends Stock {
     public static Stock getStock(Connection connection, Produit produit) throws Exception {
 
 
-        String sql = "SELECT * FROM v_stock_produit_details WHERE 1=1 ";
+        String sql = "SELECT * FROM v_stockProduit WHERE 1=1 ";
         if(produit!=null) sql+= "and idProduit = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             
@@ -81,7 +81,7 @@ public class StockProduit extends Stock {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                   
-                    Produit p = new Produit(rs.getString("idproduit"), rs.getString("nomproduit"), rs.getDouble("d_prixVente"));
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
                     StockProduit stock = new StockProduit(p, rs.getDouble("reste"));
                     stock.setFabrications(connection);
                     return stock ;

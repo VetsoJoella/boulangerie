@@ -1,0 +1,105 @@
+
+
+Changement à faire 
+
+Refactorisation + renommage code :
+
+    BACK 
+    ✔ Création de classe : @done (1/10/2025, 9:48:38 PM)
+        - BaseNom :
+            attr : id, nom, table
+            fonction CRUD  
+    ✔ Modification : @done (1/11/2025, 7:35:42 AM)
+        - Unite extends BaseNom
+        - Variete extends BaseNom
+        - Saveur extends BaseNom
+
+    ✔ Modification de la classe ProduitCategorie => BaseProduit : @done (1/11/2025, 7:40:01 AM)
+        - attr : id, Variete, d_prix, nom 
+        - fonction : 
+            CRUD 
+            Produit[] getAll(Connection)
+            Produit[] getByCriteria(Connection, Variete)
+            insert(Connection connection)
+        
+        ✔ Création de Produit : @done (1/11/2025, 8:05:05 AM)
+            - attr : id, Saveur, BaseProduit, d_prix 
+            - fonction : 
+                CRUD 
+                Produit[] getAll(Connection)
+                Produit[] getByCriteria(Connection, Saveur, BaseProduit)
+                insert(Connection)
+
+    ✔ Modification Recette : @done (1/11/2025, 8:32:41 AM)
+        attr : Produit, Ingredient, qtt 
+        modif insert(Connection)
+        modif getByCriteria(Connection, Ingredient, Produit)
+    
+    ✔ StockIngredient : @done (1/11/2025, 9:01:19 AM)
+        - getStock(Connection)
+
+    ✔ Modification Fabrication : @done (1/11/2025, 9:01:25 AM)
+        attr : Produit, quantite, dateFabrication, id 
+        getByCriteria(Connection, Variete, Ingredient, dateMin, dateMax)
+        getByCriteria(Connection, Variete, Ingredient, dateMin, dateMax)
+        
+    ✔ Modification Vente : @done (1/11/2025, 9:25:27 AM)
+        insert(Connection)
+        getByCriteria(Connection, Variete, Saveur, dateMin, dateMax)
+
+
+            
+    VUE + base : 
+        ✔ séquence @done (1/11/2025, 9:37:37 AM)
+        ✔ historique + produit @done (1/11/2025, 9:57:19 AM)
+        ✔ produitbase + variete @done (1/11/2025, 10:01:22 AM)
+        ✔ produit + produitbase + variete @done (1/11/2025, 10:22:37 AM)
+        ✔ recette + produit + produitBase + recette @done (1/11/2025, 10:32:20 AM)
+        ✔ recette + Ingredient + produit + produitBase @done (1/11/2025, 10:32:30 AM)
+        ✔ fabrication + produit @done (1/11/2025, 10:48:01 AM)
+        ✔ vente + produit @done (1/11/2025, 10:52:47 AM)
+        ✔ stock produit @done (1/11/2025, 10:56:32 AM)
+        ✔ stock ingredient @done (1/11/2025, 11:35:31 AM)
+        ✔ vente + produitBase + produit @done (1/11/2025, 11:35:52 AM)
+
+
+    FRONT : 
+        ☐ Navigation
+        ✔ Vérification insertion : @done (1/11/2025, 11:44:15 AM)
+            - Variété
+            - Unité 
+        ✔ Création insertion Saveur @done (1/11/2025, 11:48:16 AM)
+        ✔ Modification insertion produitBase @done (1/11/2025, 12:01:06 PM)
+            - suppression de la colonne prix 
+        ✔ Produit : @done (1/11/2025, 12:19:39 PM)
+            - insertion 
+            - recherche
+        ✔ Recette : @done (1/11/2025, 12:34:17 PM)
+            - Modification insertion recette 
+            - recherche multicritère recette 
+        ✔ Fabrication : @done (1/11/2025, 12:41:51 PM)
+            - Modification formulaire fabrication
+            - recherche multicritère fabrication 
+        ✔ Vente : @done (1/11/2025, 4:05:03 PM)
+            - Modification insertion vente 
+            - recherche multicritère vente
+
+    
+    TEST : 
+        ✔ Unité @done (1/11/2025, 4:05:05 PM)
+        ✔ Variété @done (1/11/2025, 4:21:40 PM)
+        ✔ Saveur @done (1/11/2025, 4:10:35 PM)
+        ✔ produitBase @done (1/11/2025, 4:32:33 PM)
+        ✔ Produit @done (1/11/2025, 5:29:36 PM)
+        ✔ Ingredient @done (1/11/2025, 4:14:16 PM)
+        ✔ Recette @done (1/11/2025, 5:29:38 PM)
+        ✔ AchatIngredient @done (1/11/2025, 4:51:34 PM)
+        ☐ Fabrication 
+        ☐ Vente 
+
+
+
+Pain , viennoiserie, patiserie, snack sale
+
+Nature, fruites, fromage, jambon, beurre 
+        

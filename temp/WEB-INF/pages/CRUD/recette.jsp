@@ -1,12 +1,17 @@
 <%@ include file="../templates/header.jsp" %>
+
 <%@page import="com.model.ingredient.Ingredient"%>
 <%@page import="com.model.produit.Produit"%>
-<%@page import="com.model.recette.Recette"%>
+<%@page import="com.model.produit.recette.Recette"%>
+<%@page import="com.model.produit.variete.Variete"%>
+<%@page import="com.model.produit.base.ProduitBase"%>
 
 <% 
     Ingredient[] ingredients = (Ingredient[]) request.getAttribute("ingredients");
     Produit[] produits = (Produit[]) request.getAttribute("produits") ;
+    ProduitBase[] produitBases = (ProduitBase[]) request.getAttribute("produitBases") ;
     Recette[] recettes = (Recette[]) request.getAttribute("recettes") ;
+    Variete[] varietes = (Variete[]) request.getAttribute("varietes") ;
 
     if (request.getAttribute("message") != null) { %>
       <script type="text/javascript">
@@ -43,7 +48,7 @@
                         <div class="col-sm-10">
                             <select id="inputState" class="form-select" name="idProduit">
                               <% for(Produit produit : produits) {  %>
-                                <option value="<%= produit.getId() %>"><%= produit.getNom() %></option>
+                                <option value="<%= produit.getId() %>"><%= produit.getProduitBase().getNom() %>-<%= produit.getSaveur().getNom() %></option>
                               <% } %>
                             </select>                                  
                         </div>
@@ -87,7 +92,18 @@
                              <select id="inputState" class="form-select" name="idProduit">
                                 <option></option>
                               <% for(Produit produit : produits) {  %>
-                                <option value="<%= produit.getId() %>"><%= produit.getNom() %></option>
+                                <option value="<%= produit.getId() %>"><%= produit.getProduitBase().getNom() %>-<%= produit.getSaveur().getNom() %></option>
+                              <% } %>
+                            </select>                                   
+                        </div>
+                   </div>
+                    <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Produit Base</label>
+                        <div class="col-sm-10">
+                             <select id="inputState" class="form-select" name="idProduitBase">
+                                <option></option>
+                              <% for(ProduitBase produitBase : produitBases) {  %>
+                                <option value="<%= produitBase.getId() %>"><%= produitBase.getNom() %></option>
                               <% } %>
                             </select>                                   
                         </div>
@@ -100,6 +116,18 @@
 
                              <% for(Ingredient ingredient : ingredients) {  %>
                                 <option value="<%= ingredient.getId() %>"><%= ingredient.getNom() %></option>
+                            <% } %>
+                        </select>                                 
+                        </div>
+                    </div>
+                     <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Variété</label>
+                        <div class="col-sm-10">
+                           <select id="inputState" class="form-select" name="idVariete">
+                              <option></option>
+
+                             <% for(Variete variete : varietes) {  %>
+                                <option value="<%= variete.getId() %>"><%= variete.getNom() %></option>
                             <% } %>
                         </select>                                 
                         </div>
@@ -126,7 +154,7 @@
                     for(Recette recette : recettes){ %>
                           <tr>
                             <th scope="row"><%= recette.getId() %></th>
-                            <td><%= recette.getProduit().getNom() %></td>
+                            <td><%= recette.getProduit().getProduitBase().getNom() %>-<%= recette.getProduit().getSaveur().getNom() %></td>
                             <td><%= recette.getIngredient().getNom() %></td>
                             <td><%= recette.getQuantite() %></td>
                             <td><a href="#"><i class="bi bi-trash" ></i></a></td>

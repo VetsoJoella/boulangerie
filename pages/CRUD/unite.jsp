@@ -60,7 +60,6 @@
                   <tr>
                     <th scope="col">#</th>
                     <th scope="col">Nom</th>
-                    <th scope="col"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -69,7 +68,6 @@
                           <tr>
                             <th scope="row"><%= unite.getId() %></th>
                             <td><%= unite.getNom() %></td>
-                            <td><a href="${pageContext.request.contextPath}/CRUD/unite?idUnite=<%= unite.getId() %>"><i class="bi bi-trash" ></i></a></td>
                           </tr>
                     <% } %>
                   <% } %>

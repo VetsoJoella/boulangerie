@@ -1,21 +1,16 @@
 <%@ include file="../templates/header.jsp" %>
 
-<%@page import="com.model.ingredient.unite.Unite"%>
 <%@page import="com.model.produit.Produit"%>
-<%@page import="com.model.produit.type.Type"%>
-<%@page import="com.model.ingredient.Ingredient"%>
-<%@page import="com.model.recette.Recette"%>
+<%@page import="com.model.produit.base.ProduitBase"%>
+<%@page import="com.model.produit.saveur.Saveur"%>
+<%@page import="com.model.produit.variete.Variete"%>
+
 
 <% 
     Produit[] produits = (Produit[]) request.getAttribute("produits");
-    Type[] types = (Type[])request.getAttribute("types");
-
-    String id = "", nom = "";
-    double prix = 0 ;
-
-    if(request.getAttribute("id")!=null) id = (String)request.getAttribute("id");
-    if(request.getAttribute("nom")!=null) nom = (String)request.getAttribute("nom");
-    if(request.getAttribute("prix")!=null) prix = (Double)request.getAttribute("prix");
+    ProduitBase[] produitBases = (ProduitBase[]) request.getAttribute("produitBases");
+    Saveur[] saveurs = (Saveur[]) request.getAttribute("saveurs") ;
+    Variete[] varietes = (Variete[]) request.getAttribute("varietes") ;
 
     if (request.getAttribute("message") != null) { %>
       <script type="text/javascript">
@@ -48,16 +43,19 @@
                   <div class="row mb-3">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Nom</label>
                     <div class="col-sm-10">
-                      <input type="hidden" class="form-control" id="inputText" name="id" placeholder="kg, litre, paquet, ..." value="<%= id %>">
-                      <input type="text" class="form-control" id="inputText" name="nom" placeholder="kg, litre, paquet, ..." value="<%= nom %>">
+                       <select id="inputState" class="form-select" name="idProduitBase">
+                        <% for(ProduitBase produitBase : produitBases ) {  %>
+                          <option value="<%= produitBase.getId() %>"><%= produitBase.getNom() %></option>
+                        <% } %>
+                      </select>    
                     </div>
                   </div>
                   <div class="row mb-3">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Type</label>
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Saveur</label>
                     <div class="col-sm-10">
-                      <select id="inputState" class="form-select" name="idType">
-                        <% for(Type type : types ) {  %>
-                          <option value="<%= type.getId() %>"><%= type.getNom() %></option>
+                      <select id="inputState" class="form-select" name="idSaveur">
+                        <% for(Saveur saveur : saveurs ) {  %>
+                          <option value="<%= saveur.getId() %>"><%= saveur.getNom() %></option>
                         <% } %>
                       </select>                      
                     </div>
@@ -66,7 +64,7 @@
                   <div class="row mb-3">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Prix vente</label>
                     <div class="col-sm-10">
-                      <input type="number" class="form-control" id="inputText" name="prix" placeholder="8 000" value="<%= prix %>">
+                      <input type="number" class="form-control" id="inputText" name="prix" placeholder="8 000">
                     </div>
                   </div>
 
@@ -84,16 +82,40 @@
         
         <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Liste des produit</h5>
+              <h5 class="card-title">Liste des produits</h5>
                 <form action="${pageContext.request.contextPath}/CRUD/produit" method="get">
                     <div class="row mb-3">
-                        <label for="inputEmail3" class="col-sm-2 col-form-label">Type</label>
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Nom produit</label>
                         <div class="col-sm-10">
-                           <select id="inputState" class="form-select" name="idType">
+                           <select id="inputState" class="form-select" name="idProduitBase">
                               <option></option>
 
-                             <% for(Type type : types) {  %>
-                                <option value="<%= type.getId() %>"><%= type.getNom() %></option>
+                             <% for(ProduitBase produitBase : produitBases) {  %>
+                                <option value="<%= produitBase.getId() %>"><%= produitBase.getNom() %></option>
+                            <% } %>
+                          </select>                                 
+                        </div>
+                    </div>
+                     <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Variété</label>
+                        <div class="col-sm-10">
+                           <select id="inputState" class="form-select" name="idVariete">
+                              <option></option>
+
+                             <% for(Variete variete : varietes) {  %>
+                                <option value="<%= variete.getId() %>"><%= variete.getNom() %></option>
+                            <% } %>
+                          </select>                                 
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Saveur</label>
+                        <div class="col-sm-10">
+                           <select id="inputState" class="form-select" name="idSaveur">
+                              <option></option>
+
+                             <% for(Saveur saveur : saveurs) {  %>
+                                <option value="<%= saveur.getId() %>"><%= saveur.getNom() %></option>
                             <% } %>
                           </select>                                 
                         </div>
@@ -109,8 +131,7 @@
                   <tr>
                     <th scope="col">#</th>
                     <th scope="col">Nom</th>
-                    <th scope="col">prix unitaire</th>
-                    <th scope="col"></th>
+                    <th scope="col">Prix</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -118,10 +139,8 @@
                     for(Produit produit : produits){ %>
                           <tr>
                             <th scope="row"><%= produit.getId() %></th>
-                            <td><%= produit.getNom() %></td>
+                            <td><%= produit.getProduitBase().getNom() %> - <%=  produit.getSaveur().getNom() %></td>
                             <td><%= produit.getPrixVente() %></td>
-                            <td><a href="${pageContext.request.contextPath}/CRUD/produit?idProduit=<%= produit.getId() %>"><i class="bi bi-trash" ></i></a></td>
-                            <td><a href="${pageContext.request.contextPath}/CRUD/produit?action=u&&idProduit=<%= produit.getId() %>"><i class="bi bi-pencil" ></i></a></td>
                           </tr>
                     <% } %>
                   <% } %>

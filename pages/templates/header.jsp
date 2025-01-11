@@ -62,14 +62,24 @@
           <i class="bi bi-pencil-square"></i><span>CRUD</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <a href="${pageContext.request.contextPath}/CRUD/type">
-              <i class="bi bi-circle"></i><span>Type</span>
-            </a>
-          </li>
-            <li>
+           <li>
             <a href="${pageContext.request.contextPath}/CRUD/unite">
               <i class="bi bi-circle"></i><span>Unité</span>
+            </a>
+          </li>
+          <li>
+            <a href="${pageContext.request.contextPath}/CRUD/variete">
+              <i class="bi bi-circle"></i><span>Variété</span>
+            </a>
+          </li>
+          <li>
+            <a href="${pageContext.request.contextPath}/CRUD/saveur">
+              <i class="bi bi-circle"></i><span>Saveur</span>
+            </a>
+          </li>
+          <li>
+            <a href="${pageContext.request.contextPath}/CRUD/produitBase">
+              <i class="bi bi-circle"></i><span>Produit base</span>
             </a>
           </li>
           <li>

@@ -28,15 +28,15 @@ mkdir "%bin%"
 
 rem Copie du dossier lib, web, et xml
 echo "Copie des dossiers ..."
-copy "%index_page%" "%temporaire%" 
-xcopy "%assets%" "%temporaire%\assets" 
-xcopy "%lib%" "%temporaire%\WEB-INF\lib" 
-xcopy "%web%" "%temporaire%\WEB-INF\pages\" 
-copy "%xml%\*" "%temporaire%\WEB-INF\" 
+copy "%index_page%" "%temporaire%" /Y 
+xcopy "%assets%" "%temporaire%\assets" /E /I /Y 
+xcopy "%lib%" "%temporaire%\WEB-INF\lib" /E /I /Y 
+xcopy "%web%" "%temporaire%\WEB-INF\pages\" /E /I /Y 
+copy "%xml%\*" "%temporaire%\WEB-INF\" /Y 
 
 rem Compilation des fichiers Java
 for /R "%src%" %%f in (*.java) do (
-    copy "%%f" "%bin%"   
+    copy "%%f" "%bin%"  /Y 
 )
 echo "Compilation des fichiers ..."
 rem Compilation des fichiers Java
@@ -52,6 +52,6 @@ rem Suppression des fichiers temporaires si aucune erreur n'est survenue
 del /s /q "%bin%\*.*"  /E /Y /Q
 echo "Archivage des fichiers ..."
 rem Archivage des fichiers
-jar -cvf "%webapps%%nomProjet%.war" -C "%temporaire%" .  /E /Y /Q
+jar -cvf "%webapps%%nomProjet%.war" -C "%temporaire%" . 
 echo "Finalisation"
 @REM endlocal

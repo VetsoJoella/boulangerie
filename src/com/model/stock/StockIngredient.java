@@ -9,9 +9,8 @@ import java.util.List;
 
 import com.model.ingredient.AchatIngredient;
 import com.model.ingredient.Ingredient;
-import com.model.ingredient.unite.Unite;
 import com.model.produit.Produit;
-import com.model.recette.Recette;
+import com.model.produit.recette.Recette;
 
 public class StockIngredient extends Stock{
     
@@ -59,12 +58,11 @@ public class StockIngredient extends Stock{
 
         List<Stock> stocks = new ArrayList<>();
 
-        String sql = "SELECT * FROM v_stock_ingredient_details WHERE 1=1 ";
+        String sql = "SELECT * FROM v_stockIngredient WHERE 1=1 ";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
-                    Ingredient ingredient = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
+                    Ingredient ingredient = Ingredient.getById(connection,rs.getString("idIngredient"));
                     Stock stock = new StockIngredient(ingredient, rs.getDouble("reste"));
                     stocks.add(stock);
                 }
@@ -78,14 +76,13 @@ public class StockIngredient extends Stock{
 
         List<Stock> stocks = new ArrayList<>();
 
-        String sql = "SELECT * FROM v_stock_ingredient_details WHERE 1=1 ";
-        if(produit!=null && !produit.getId().isEmpty()) sql+= "and idIngredient in (select idIngredient from v_recette_ingredient_produit where idProduit =? )";
+        String sql = "SELECT * FROM v_stockIngredient WHERE 1=1 ";
+        if(produit!=null && !produit.getId().isEmpty()) sql+= "and idIngredient in (select idIngredient from v_recette_produit where idProduit =? )";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             if(produit!=null && !produit.getId().isEmpty()) pstmt.setString(1, produit.getId());
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
-                    Ingredient ingredient = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
+                    Ingredient ingredient = Ingredient.getById(connection,rs.getString("idIngredient"));
                     Stock stock = new StockIngredient(ingredient, rs.getDouble("reste"));
                     stocks.add(stock);
                 }
@@ -117,15 +114,14 @@ public class StockIngredient extends Stock{
     public static Stock getStock(Connection connection, Ingredient ingredient) throws Exception {
 
 
-        String sql = "SELECT * FROM v_stock_ingredient_details WHERE 1=1 ";
+        String sql = "SELECT * FROM v_stockIngredient WHERE 1=1 ";
         if(ingredient!=null) sql+= "and idIngredient =? )";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             
             if(ingredient!=null) pstmt.setString(1, ingredient.getId());
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
-                    Ingredient i = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
+                    Ingredient i = Ingredient.getById(connection,rs.getString("idIngredient"));
                     StockIngredient stock = new StockIngredient(i, rs.getDouble("reste"));
                     stock.setAchatIngredients(connection);
                     return stock ;
@@ -139,23 +135,20 @@ public class StockIngredient extends Stock{
     static Stock getStock(Connection connection, Ingredient ingredient, Date date) throws Exception {
 
 
-        String sql = "select a.*, i.nom as nomIngredient , idUnite, u.nom as nomUnite from "+
+        String sql = "select * from "+
                     "(select idIngredient, sum(d_reste) as reste from achatIngredient where 1=1 ";
         
         if(date!=null) sql+= " and dateAchat <= ? group by idIngredient) a ";
         else sql+= " and '1' = ? group by idIngredient) a ";
-        sql+=  "join ingredient i on idIngredient = i.id join unite u on u.id = idUnite ";
-        if(ingredient!=null) sql+= "where idIngredient = ? order by date";
-        System.out.println("Requete est : "+sql);
+        if(ingredient!=null) sql+= "where idIngredient = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            
+            System.out.println("Requete des getStock est : "+sql);
             if(date!=null) pstmt.setDate(1, date);
             else pstmt.setString(1, "1");
             if(ingredient!=null) pstmt.setString(2, ingredient.getId());
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    Unite unite = new Unite(rs.getString("idUnite"), rs.getString("nomUnite"));
-                    Ingredient i = new Ingredient(rs.getString("idIngredient"), rs.getString("nomIngredient"), unite);
+                    Ingredient i = Ingredient.getById(connection,rs.getString("idIngredient"));
                     StockIngredient stock = new StockIngredient(i, rs.getDouble("reste"));
                     stock.setAchatIngredients(connection);
                     return stock ;
@@ -197,6 +190,7 @@ public class StockIngredient extends Stock{
                 quantiteUtilise = quantite ; 
             }
             achatIngredients.add(getAchatIngredients()[i]);
+            System.out.println("Quantité restante est "+getAchatIngredients()[i].getReste());
         }
         setAchatIngredients(achatIngredients.toArray(new AchatIngredient[0]));
     }
