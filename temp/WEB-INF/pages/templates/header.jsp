@@ -10,23 +10,22 @@
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="${pageContext.request.contextPath}/assets/img/favicon.png" rel="icon">
-  <link href="${pageContext.request.contextPath}/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="http:/localhost/CDN-NiceAdmin/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
-  <link href="${pageContext.request.contextPath}/assets/css/fonts.googleapis.css" rel="stylesheet">
+  <link href="http://localhost/CDN-NiceAdmin//css/fonts.googleapis.css" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
-  <link href="${pageContext.request.contextPath}/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="${pageContext.request.contextPath}/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="${pageContext.request.contextPath}/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-  <!-- <link href="${pageContext.request.contextPath}/assets/vendor/quill/quill.snow.css" rel="stylesheet"> -->
-  <!-- <link href="${pageContext.request.contextPath}/assets/vendor/quill/quill.bubble.css" rel="stylesheet"> -->
-  <!-- <link href="${pageContext.request.contextPath}/assets/vendor/remixicon/remixicon.css" rel="stylesheet"> -->
-  <!-- <link href="${pageContext.request.contextPath}/assets/vendor/simple-datatables/style.css" rel="stylesheet"> -->
+  <link href="http://localhost/CDN-NiceAdmin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="http://localhost/CDN-NiceAdmin/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="http://localhost/CDN-NiceAdmin/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="http://localhost/CDN-NiceAdmin/vendor/quill/quill.snow.css" rel="stylesheet">
+  <link href="http://localhost/CDN-NiceAdmin/vendor/quill/quill.bubble.css" rel="stylesheet">
+  <link href="http://localhost/CDN-NiceAdmin/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="http://localhost/CDN-NiceAdmin/vendor/simple-datatables/style.css" rel="stylesheet">
 
   <!-- Template Main CSS File -->
-  <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
+  <link href="http://localhost/CDN-NiceAdmin/css/style.css" rel="stylesheet">
 
 </head>
 
@@ -110,6 +109,11 @@
           <li>
             <a href="${pageContext.request.contextPath}/CRUD/vente">
               <i class="bi bi-circle"></i><span>Vente</span>
+            </a>
+          </li>
+           <li>
+            <a href="${pageContext.request.contextPath}/CRUD/conseilDuMois">
+              <i class="bi bi-circle"></i><span>Conseil Du Mois</span>
             </a>
           </li>
         </ul>

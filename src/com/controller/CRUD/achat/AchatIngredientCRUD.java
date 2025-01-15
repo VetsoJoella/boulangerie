@@ -36,6 +36,7 @@ public class AchatIngredientCRUD extends HttpServlet{
             
             req.setAttribute("achats", AchatIngredient.getByCriteria(connection, idIngredient, dateMin, dateMax));
 
+
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());
         }

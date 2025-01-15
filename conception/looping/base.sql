@@ -57,9 +57,9 @@ CREATE TABLE conseilDuMois(
    id VARCHAR(50)  DEFAULT ('CDM') || LPAD(nextval('s_conseilDuMois')::TEXT, 5, '0'),
    dateDebut DATE NOT NULL,
    dateFin DATE,
-   idProduit VARCHAR(50)  NOT NULL,
+   id_idProduit VARCHAR(50)  NOT NULL,
    PRIMARY KEY(id),
-   FOREIGN KEY(idProduit) REFERENCES produit(id)
+   FOREIGN KEY(id_idProduit) REFERENCES produit(id)
 );
 
 CREATE TABLE recette(
