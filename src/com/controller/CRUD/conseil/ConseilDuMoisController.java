@@ -35,6 +35,8 @@ public class ConseilDuMoisController extends HttpServlet {
             Connection connection = utilDb.getConnection();
             String annee = req.getParameter("annee") ; 
             String mois = req.getParameter("mois") ; 
+            // String annee = "" ; 
+            // String mois = "2024" ; 
             System.out.println("Valeur de mois est "+mois+" - Année est "+annee);
             
             req.setAttribute("conseilDuMois", ConseilDuMois.getByCriteria(connection, annee, mois));

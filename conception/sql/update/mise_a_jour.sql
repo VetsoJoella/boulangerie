@@ -25,3 +25,13 @@ ALTER TABLE vente
 ADD CONSTRAINT vente_idproduit_fkey
 FOREIGN KEY (idProduit) REFERENCES produitCaracteristique(id);
 
+
+-- Androany 
+-- ALTER TABLE vente
+-- ADD COLUMN idClient VARCHAR(50);
+
+ALTER TABLE vente
+ADD CONSTRAINT fgnClient FOREIGN KEY (idClient)
+REFERENCES client (id)
+
+

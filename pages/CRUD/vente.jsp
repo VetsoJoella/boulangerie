@@ -3,12 +3,14 @@
 <%@page import="com.model.production.vente.Vente"%>
 <%@page import="com.model.produit.variete.Variete"%>
 <%@page import="com.model.produit.saveur.Saveur"%>
+<%@page import="com.model.client.Client"%>
 
 <% 
     Produit[] produits = (Produit[]) request.getAttribute("produits");
     Variete[] varietes = (Variete[]) request.getAttribute("varietes");
     Saveur[] saveurs = (Saveur[]) request.getAttribute("saveurs");
     Vente[] ventes = (Vente[]) request.getAttribute("ventes") ;
+    Client[] clients = (Client[]) request.getAttribute("clients") ;
 
     if (request.getAttribute("message") != null) { %>
       <script type="text/javascript">
@@ -45,6 +47,16 @@
                             <select id="inputState" class="form-select" name="idProduit">
                               <% for(Produit produit : produits) {  %>
                                 <option value="<%= produit.getId() %>"><%= produit.getProduitBase().getNom() %>- <%= produit.getSaveur().getNom() %> </option>
+                              <% } %>
+                            </select>                                  
+                        </div>
+                      </div>
+                   <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Client</label>
+                        <div class="col-sm-10">
+                            <select id="inputState" class="form-select" name="idClient">
+                              <% for(Client client : clients) {  %>
+                                <option value="<%= client.getId() %>"><%= client.getNom() %></option>
                               <% } %>
                             </select>                                  
                         </div>
@@ -111,6 +123,7 @@
                 <thead>
                   <tr>
                     <th scope="col">#</th>
+                    <th scope="col">Client</th>
                     <th scope="col">Date vente</th>
                     <th scope="col">Produit</th>
                     <th scope="col">Quantité</th>
@@ -121,6 +134,7 @@
                     for(Vente vente : ventes){ %>
                           <tr>
                             <th scope="row"><%= vente.getId() %></th>
+                            <td><%= vente.getClient().getNom() %></td>
                             <td><%= vente.getDate() %></td>
                             <td><%= vente.getProduit().getProduitBase().getNom() %>-<%= vente.getProduit().getSaveur().getNom() %></td>
                             <td><%= vente.getQuantite() %></td>

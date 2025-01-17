@@ -72,3 +72,7 @@ create or replace view v_achat_ingredient_unite as
             from achatIngredient a join ingredient i on i.id = idIngredient join unite u on u.id = idUnite;
 ----------------------------------------------
 
+
+-- Liaison Client vente : 
+create or replace view v_client_vente as 
+    select v.*, c.nom as nomclient from vente v join client c on c.id= v.idClient;

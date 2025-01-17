@@ -35,6 +35,12 @@ CREATE TABLE saveur(
    PRIMARY KEY(id)
 );
 
+CREATE TABLE client(
+   id VARCHAR(50)  DEFAULT ('CLT') || LPAD(nextval('s_client')::TEXT, 5, '0'),
+   nom VARCHAR(50)  NOT NULL,
+   PRIMARY KEY(id)
+);
+
 CREATE TABLE produitBase(
    id VARCHAR(50)  DEFAULT ('PRD_BS') || LPAD(nextval('s_produitBase')::TEXT, 5, '0'),
    nom VARCHAR(30)  NOT NULL,
@@ -51,15 +57,6 @@ CREATE TABLE produit(
    PRIMARY KEY(id),
    FOREIGN KEY(idSaveur) REFERENCES saveur(id),
    FOREIGN KEY(idProduitBase) REFERENCES produitBase(id)
-);
-
-CREATE TABLE conseilDuMois(
-   id VARCHAR(50)  DEFAULT ('CDM') || LPAD(nextval('s_conseilDuMois')::TEXT, 5, '0'),
-   dateDebut DATE NOT NULL,
-   dateFin DATE,
-   idProduit VARCHAR(50)  NOT NULL,
-   PRIMARY KEY(id),
-   FOREIGN KEY(idProduit) REFERENCES produit(id)
 );
 
 CREATE TABLE recette(
@@ -87,8 +84,10 @@ CREATE TABLE vente(
    dateVente TIMESTAMP default current_timestamp,
    quantiteVente INTEGER default 0,
    d_prixUnitaire NUMERIC(10,2)   default 0.0,
+   idClient VARCHAR(50)  NOT NULL,
    idProduit VARCHAR(50)  NOT NULL,
    PRIMARY KEY(id),
+   FOREIGN KEY(idClient) REFERENCES client(id),
    FOREIGN KEY(idProduit) REFERENCES produit(id)
 );
 

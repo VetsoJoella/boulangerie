@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.exception.model.ValeurInvalideException;
 import com.exception.stock.StockInsuffisantException;
+import com.model.client.Client;
 import com.model.production.Production;
 import com.model.production.fabrication.Fabrication;
 import com.model.produit.Produit;
@@ -20,6 +21,21 @@ import com.model.stock.Stock;
 import com.model.stock.StockProduit;
 
 public class Vente extends Production{
+
+    Client client;
+
+    
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public void setClient(String idClient) {
+        setClient(new Client(idClient));
+    }
 
     // Constructeur 
     public Vente() {}
@@ -38,6 +54,12 @@ public class Vente extends Production{
 
     public Vente(String id, int quantiteVente, Date dateVente, Produit produit) throws ValeurInvalideException {
         super(id, quantiteVente, dateVente, produit);       
+        
+    }
+
+    public Vente(String id, int quantiteVente, Date dateVente, Produit produit, Client client) throws ValeurInvalideException {
+        super(id, quantiteVente, dateVente, produit);    
+        setClient(client);   
         
     }
 
@@ -69,7 +91,7 @@ public class Vente extends Production{
 
         // if(getProduit().getPrixVente()==0) setProduit(Produit.getById(connection, getProduit().getId()));
 
-        String sql = "INSERT INTO vente (id, quantiteVente, dateVente, d_prixUnitaire, idProduit) VALUES (DEFAULT, ?, ?, ?, ?)";
+        String sql = "INSERT INTO vente (id, quantiteVente, dateVente, d_prixUnitaire, idProduit, idClient) VALUES (DEFAULT, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -77,6 +99,7 @@ public class Vente extends Production{
             pstmt.setDate(2, getDate());
             pstmt.setDouble(3, getProduit().getPrixVente());
             pstmt.setString(4, getProduit().getId()); // Utilisation de l'ID de l'objet Produit
+            pstmt.setString(5, getClient().getId()); // Utilisation de l'ID de l'objet Produit
             pstmt.executeUpdate();
 
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
@@ -90,16 +113,16 @@ public class Vente extends Production{
     @Override
     public void insert(Connection connection) throws Exception{
         
-        Stock stock = StockProduit.getStock(connection, getProduit());
+        // Stock stock = StockProduit.getStock(connection, getProduit());
 
-        verifierStockProduit(stock) ;
+        // verifierStockProduit(stock) ;
 
         connection.setAutoCommit(false);
         try {
 
             insertMere(connection);
-            stock.utiliserStock(getQuantite());
-            Fabrication.update(connection, ((StockProduit)stock).getFabrications());
+            // stock.utiliserStock(getQuantite());
+            // Fabrication.update(connection, ((StockProduit)stock).getFabrications());
             connection.commit();
         } catch(Exception err) {
             connection.rollback();
@@ -111,7 +134,7 @@ public class Vente extends Production{
      // Méthode pour récupérer une fabrication par ID
     public static Vente getById(Connection connection, String id) throws Exception {
         
-        String sql = "SELECT v.id, v.quantiteVente, v.dateVente, v.d_prixUnitaire, idProduit, p.nom AS nomProduit "+
+        String sql = "SELECT v.id, v.quantiteVente, v.dateVente, v.d_prixUnitaire, idProduit, p.nom AS nomProduit, idClient "+
                     " FROM vente v JOIN produit p ON v.idProduit = p.id where 1=1 and id = ? ";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -120,10 +143,11 @@ public class Vente extends Production{
                 if (rs.next()) {
                     int quantiteVente = rs.getInt("quantitevente");
                     Date dateVente = rs.getDate("dateVente");
+                    Client client = new Client().getById(connection, rs.getString("idClient"));
                       
                     Produit p = Produit.getById(connection, rs.getString("idProduit"));
 
-                    new Vente(id, quantiteVente, dateVente, p);
+                    new Vente(id, quantiteVente, dateVente, p, client);
                 }
             }
         }
@@ -165,8 +189,59 @@ public class Vente extends Production{
         return ventes.toArray(new Vente[0]);
     }
 
+    static Vente[] getByCriteria(Connection connection, Produit produit, ProduitBase produitBase, Variete variete, Saveur saveur) throws Exception {
+
+        List<Vente> ventes = new ArrayList<>();
+        String sql = "SELECT * "+
+                    " FROM v_vente_produit where 1=1 ";
+
+        if(variete!=null && !variete.getId().isEmpty()) sql+= "and idVariete = ? ";
+        else sql+= "and '1' = ? ";
+        if(saveur!=null && !saveur.getId().isEmpty()) sql+= "and idSaveur = ? ";
+        else sql+= "and '1' = ? ";
+        if(produit!=null && !produit.getId().isEmpty()) sql+= "and idProduit = ? ";
+        else sql+= "and '1' = ? ";
+        if(produitBase!=null && !produitBase.getId().isEmpty()) sql+= "and idProduitBase = ? ";
+        else sql+= "and '1' = ? ";
+
+        sql+= " and dateVente = CURRENT_DATE";
+       
+          
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            System.out.println("Requete de getByCriteria est "+sql);
+            if(variete!=null) pstmt.setString(1, variete.getId());
+            else pstmt.setString(1, "1");
+            if(saveur!=null) pstmt.setString(2, saveur.getId());
+            else pstmt.setString(2, "1");
+            if(produit!=null) pstmt.setString(3, produit.getId());
+            else pstmt.setString(3, "1");
+            if(produitBase!=null) pstmt.setString(4, produitBase.getId());
+            else pstmt.setString(4, "1");
+          
+
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+
+                while (rs.next()) {
+                    String id = rs.getString("id");
+                    int quantiteVente = rs.getInt("quantitevente");
+                    Date dateVente = rs.getDate("dateVente");
+                    Client client = new Client().getById(connection, rs.getString("idClient"));
+                      
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
+                    ventes.add(new Vente(id, quantiteVente, dateVente, p, client));
+                }
+            }
+        }
+       
+        return ventes.toArray(new Vente[0]);
+
+    }
+
+
     static Vente[] getByCriteria(Connection connection, Produit produit, ProduitBase produitBase, Variete variete, Saveur saveur, Date dateMin, Date dateMax) throws Exception {
         
+        if(dateMin==null && dateMax==null) return getByCriteria(connection, produit, produitBase, variete, saveur);
         List<Vente> ventes = new ArrayList<>();
         String sql = "SELECT * "+
                     " FROM v_vente_produit where 1=1 ";
@@ -195,7 +270,7 @@ public class Vente extends Production{
             else pstmt.setString(4, "1");
             if(dateMin!=null) pstmt.setDate(5, dateMin);
             else pstmt.setString(5, "1");
-            if(dateMax!=null) pstmt.setDate(5, dateMax);
+            if(dateMax!=null) pstmt.setDate(6, dateMax);
 
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -204,9 +279,10 @@ public class Vente extends Production{
                     String id = rs.getString("id");
                     int quantiteVente = rs.getInt("quantitevente");
                     Date dateVente = rs.getDate("dateVente");
+                    Client client = new Client().getById(connection, rs.getString("idClient"));
                       
                     Produit p = Produit.getById(connection, rs.getString("idProduit"));
-                    ventes.add(new Vente(id, quantiteVente, dateVente, p));
+                    ventes.add(new Vente(id, quantiteVente, dateVente, p, client));
                 }
             }
         }

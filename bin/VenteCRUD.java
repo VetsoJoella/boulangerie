@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.model.client.Client;
 import com.model.production.vente.Vente;
 import com.model.produit.Produit;
 import com.model.produit.saveur.Saveur;
@@ -49,11 +50,13 @@ public class VenteCRUD extends HttpServlet {
         String idProduit = req.getParameter("idProduit");
         String quantite = req.getParameter("quantite");
         String date = req.getParameter("date");
+        String idClient = req.getParameter("idClient");
 
         Vente[] ventes = new Vente[0] ; 
         try {
             Connection connection = utilDb.getConnection();
             Vente vente = new Vente(null, quantite, date, idProduit);
+            vente.setClient(idClient);
             vente.insert(connection);
             ventes =  Vente.getByCriteria(connection, null, null, null, null, null, null) ;
             req.setAttribute("message", "Vente insérée");
@@ -77,6 +80,7 @@ public class VenteCRUD extends HttpServlet {
             req.setAttribute("produits", Produit.getAll(connection));
             req.setAttribute("varietes", new Variete().getAll(connection));
             req.setAttribute("saveurs", new Saveur().getAll(connection));
+            req.setAttribute("clients", new Client().getAll(connection));
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());

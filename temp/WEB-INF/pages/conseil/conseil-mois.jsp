@@ -80,6 +80,8 @@
                         <label for="inputEmail3" class="col-sm-2 col-form-label">Mois</label>
                         <div class="col-sm-10">
                           <select id="inputState" class="form-select" name="mois">
+                              <option value=""></option>
+
                             <% for(int i = 0 ; i<mois.length ; i++) {  %>
                               <option value="<%= i+1 %>"><%= mois[i] %></option>
                             <% } %>
@@ -106,6 +108,8 @@
                   <tr>
                     <th scope="col">#</th>
                     <th scope="col">Produit</th>
+                    <th scope="col">Date début</th>
+                    <th scope="col">Date fin</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -114,6 +118,8 @@
                           <tr>
                             <th scope="row"><%= c.getId() %></th>
                             <td><%= c.getProduit().getProduitBase().getNom() %>-<%= c.getProduit().getSaveur().getNom() %></td>
+                            <td><%= c.getIntervalle().getDateDebut()%></td>
+                            <td><%= c.getIntervalle().getDateFin() %></td>
                            
                           </tr>
                     <% } %>

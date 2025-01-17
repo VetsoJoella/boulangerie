@@ -111,16 +111,14 @@ public class ConseilDuMois {
         int a = 0 , m = 0 ;
         try {
             int annneStr = Integer.valueOf(annee);
-                a=  annneStr ;
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
+            a=  annneStr ;
+        } catch (Exception e) {  }
+
         try {
             int moisStr = Integer.valueOf(mois);
-                m=  moisStr ;
-                 } catch (Exception e) {
-            // TODO: handle exception
-        }
+            m=  moisStr ;
+        } catch (Exception e) {  }
+
         return getByCriteria(connection, a, m);
 
     }

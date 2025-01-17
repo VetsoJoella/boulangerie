@@ -116,6 +116,11 @@
               <i class="bi bi-circle"></i><span>Conseil Du Mois</span>
             </a>
           </li>
+          <li>
+            <a href="${pageContext.request.contextPath}/CRUD/client">
+              <i class="bi bi-circle"></i><span>Clients</span>
+            </a>
+          </li>
         </ul>
       </li><!-- End Components Nav -->
 
