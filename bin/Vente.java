@@ -8,11 +8,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.configuration.CommissionConfig;
 import com.exception.model.ValeurInvalideException;
 import com.exception.stock.StockInsuffisantException;
 import com.model.client.Client;
 import com.model.production.Production;
 import com.model.production.fabrication.Fabrication;
+import com.model.production.vente.vendeur.Vendeur;
 import com.model.produit.Produit;
 import com.model.produit.base.ProduitBase;
 import com.model.produit.saveur.Saveur;
@@ -23,8 +25,38 @@ import com.model.stock.StockProduit;
 public class Vente extends Production{
 
     Client client;
+    Vendeur vendeur ; 
+    double commission ; 
 
     
+    public double getCommission() {
+        return commission;
+    }
+
+    public void setCommission(double commission) {
+        this.commission = commission;
+    }
+
+    public void setCommission() {
+        setCommission(0);
+        if(getTotal()>=CommissionConfig.MIN_COMMISSION) { 
+            setCommission((getQuantite()*getProduit().getPrixVente()*CommissionConfig.COMMISSION)/100);
+        }
+        
+    }
+
+    public Vendeur getVendeur() {
+        return vendeur;
+    }
+
+    public void setVendeur(Vendeur vendeur) {
+        this.vendeur = vendeur;
+    }
+
+    public void setVendeur(String idVendeur) {
+       setVendeur(new Vendeur(idVendeur));
+    }
+
     public Client getClient() {
         return client;
     }
@@ -35,6 +67,10 @@ public class Vente extends Production{
 
     public void setClient(String idClient) {
         setClient(new Client(idClient));
+    }
+
+    public double getTotal(){
+        return getQuantite()*getProduit().getPrixVente() ; 
     }
 
     // Constructeur 
@@ -90,8 +126,10 @@ public class Vente extends Production{
     protected void insertMere(Connection connection) throws Exception {
 
         // if(getProduit().getPrixVente()==0) setProduit(Produit.getById(connection, getProduit().getId()));
+        setProduit(Produit.getById(connection, getProduit().getId()));
+        setCommission();
 
-        String sql = "INSERT INTO vente (id, quantiteVente, dateVente, d_prixUnitaire, idProduit, idClient) VALUES (DEFAULT, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO vente (id, quantiteVente, dateVente, d_prixUnitaire, idProduit, idClient, idVendeur, commission) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -100,7 +138,10 @@ public class Vente extends Production{
             pstmt.setDouble(3, getProduit().getPrixVente());
             pstmt.setString(4, getProduit().getId()); // Utilisation de l'ID de l'objet Produit
             pstmt.setString(5, getClient().getId()); // Utilisation de l'ID de l'objet Produit
+            pstmt.setString(6, getVendeur().getId()); // Utilisation de l'ID de l'objet Produit
+            pstmt.setDouble(7, getCommission()); // Utilisation de l'ID de l'objet Produit
             pstmt.executeUpdate();
+            System.out.println("Prix du produit est "+getProduit().getPrixVente());
 
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -258,6 +299,7 @@ public class Vente extends Production{
         else sql+= "and '1' = ? ";
         if(dateMax!=null) sql+= "and dateVente<= ? ";
           
+        System.out.println("Appel de getByCriteria avec date");
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             System.out.println(sql);
             if(variete!=null) pstmt.setString(1, variete.getId());
@@ -287,6 +329,7 @@ public class Vente extends Production{
             }
         }
        
+        System.out.println("Longueur de réponse est "+ventes.size());
         return ventes.toArray(new Vente[0]);
     }
 
@@ -302,8 +345,8 @@ public class Vente extends Production{
         if(idSaveur!=null && !idSaveur.isEmpty()) saveur = new Saveur(idSaveur);
         if(idProduit!=null && !idProduit.isEmpty()) produit = new Produit(idProduit);
         if(idProduitBase!=null && !idProduitBase.isEmpty()) produitBase = new ProduitBase(idProduitBase);
-        if(dateDebut!=null) min = Date.valueOf(dateDebut);
-        if(dateFin!=null) max = Date.valueOf(dateFin);
+        if(dateDebut!=null && !dateDebut.isEmpty()) min = Date.valueOf(dateDebut);
+        if(dateFin!=null && !dateFin.isEmpty()) max = Date.valueOf(dateFin);
 
         return getByCriteria(connection, produit, produitBase, variete, saveur, min, max);
        

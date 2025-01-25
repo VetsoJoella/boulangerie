@@ -34,4 +34,24 @@ ALTER TABLE vente
 ADD CONSTRAINT fgnClient FOREIGN KEY (idClient)
 REFERENCES client (id)
 
+-- Vendeur - Talata
 
+-- ALTER TABLE vente
+-- ADD COLUMN idVendeur VARCHAR(50);
+
+-- ALTER TABLE vente
+-- ADD COLUMN commission NUMERIC(10,2)  ; 
+
+-- ALTER TABLE vente
+-- ADD CONSTRAINT fgnVendeur FOREIGN KEY (idVendeur)
+-- REFERENCES vendeur (id)
+
+
+-- Jeudi 
+
+ALTER TABLE vendeur
+ADD COLUMN idGenre VARCHAR(50);
+
+-- ALTER TABLE vendeur
+-- ADD CONSTRAINT fgnGenre FOREIGN KEY (idGenre)
+-- REFERENCES genre (id)

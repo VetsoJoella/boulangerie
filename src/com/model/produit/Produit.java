@@ -100,7 +100,7 @@ public class Produit {
         List<Produit> produits = new ArrayList<>();
         String sql = "SELECT * from v_produit_saveur_variete_detail ";
         try (PreparedStatement stmt = connection.prepareStatement(sql)){
-            System.out.println("La requete est "+sql);
+            // System.out.println("La requete est "+sql);
             try(ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
 
@@ -191,7 +191,7 @@ public class Produit {
         else sql+="and '1'= ? ";
         if(variete!=null) sql+= "and idVariete = ? ";
         try (PreparedStatement stmt = connection.prepareStatement(sql)){
-            System.out.println("Get y criteria de produit "+sql);
+            // System.out.println("Get y criteria de produit "+sql);
             if(produitBase!=null) stmt.setString(1, produitBase.getId());
             else stmt.setString(1, "1");
             if(saveur!=null) stmt.setString(2, saveur.getId());

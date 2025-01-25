@@ -121,6 +121,16 @@
               <i class="bi bi-circle"></i><span>Clients</span>
             </a>
           </li>
+          <li>
+            <a href="${pageContext.request.contextPath}/CRUD/commission">
+              <i class="bi bi-circle"></i><span>Commission</span>
+            </a>
+          </li>
+           <li>
+            <a href="${pageContext.request.contextPath}/CRUD/commissionGenre">
+              <i class="bi bi-circle"></i><span>Commission par genre</span>
+            </a>
+          </li>
         </ul>
       </li><!-- End Components Nav -->
 

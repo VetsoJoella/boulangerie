@@ -4,6 +4,8 @@
 <%@page import="com.model.produit.variete.Variete"%>
 <%@page import="com.model.produit.saveur.Saveur"%>
 <%@page import="com.model.client.Client"%>
+<%@page import="com.model.production.vente.vendeur.Vendeur"%>
+
 
 <% 
     Produit[] produits = (Produit[]) request.getAttribute("produits");
@@ -11,6 +13,7 @@
     Saveur[] saveurs = (Saveur[]) request.getAttribute("saveurs");
     Vente[] ventes = (Vente[]) request.getAttribute("ventes") ;
     Client[] clients = (Client[]) request.getAttribute("clients") ;
+    Vendeur[] vendeurs = (Vendeur[]) request.getAttribute("vendeurs") ;
 
     if (request.getAttribute("message") != null) { %>
       <script type="text/javascript">
@@ -41,6 +44,16 @@
   
                 <!-- Horizontal Form -->
                 <form method="post" action="${pageContext.request.contextPath}/CRUD/vente">
+                   <div class="row mb-3">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Vendeur</label>
+                        <div class="col-sm-10">
+                            <select id="inputState" class="form-select" name="idVendeur">
+                              <% for(Vendeur vendeur : vendeurs) {  %>
+                                <option value="<%= vendeur.getId() %>"><%= vendeur.getNom() %></option>
+                              <% } %>
+                            </select>                                  
+                        </div>
+                    </div>
                   <div class="row mb-3">
                         <label for="inputEmail3" class="col-sm-2 col-form-label">Produit</label>
                         <div class="col-sm-10">
@@ -111,6 +124,18 @@
                             </select>                                      
                         </div>
                     </div>
+                    <div class="row mb-3">
+                      <label for="inputEmail3" class="col-sm-2 col-form-label">Date min</label>
+                      <div class="col-sm-10">
+                        <input type="date" class="form-control" id="inputText" name="dateDebut" >
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="inputEmail3" class="col-sm-2 col-form-label">Date max</label>
+                      <div class="col-sm-10">
+                        <input type="date" class="form-control" id="inputText" name="dateFin" >
+                      </div>
+                    </div>
                     <div class="text-center">
                       <button type="submit" class="btn btn-primary">Submit</button>
                       <button type="reset" class="btn btn-secondary">Reset</button>
@@ -127,6 +152,8 @@
                     <th scope="col">Date vente</th>
                     <th scope="col">Produit</th>
                     <th scope="col">Quantité</th>
+                    <th scope="col">Prix unitaire</th>
+                    <th scope="col">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -138,6 +165,9 @@
                             <td><%= vente.getDate() %></td>
                             <td><%= vente.getProduit().getProduitBase().getNom() %>-<%= vente.getProduit().getSaveur().getNom() %></td>
                             <td><%= vente.getQuantite() %></td>
+                            <td><%= vente.getProduit().getPrixVente() %></td>
+                            <td><%= vente.getTotal() %></td>
+                            
                           </tr>
                     <% } %>
                   <% } %>

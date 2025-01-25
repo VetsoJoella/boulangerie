@@ -76,3 +76,10 @@ create or replace view v_achat_ingredient_unite as
 -- Liaison Client vente : 
 create or replace view v_client_vente as 
     select v.*, c.nom as nomclient from vente v join client c on c.id= v.idClient;
+
+-- SELECT * from conseilDuMois where 1=1  and (EXTRACT(MONTH FROM dateDebut) = 01  and EXTRACT(YEAR FROM dateDebut) = 2025)
+
+
+-- genre 
+create or replace view v_vendeur_genre as 
+    select v.*, g.nom as nomGenre from vendeur v join genre g on idGenre = g.id 

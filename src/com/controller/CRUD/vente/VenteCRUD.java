@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.model.client.Client;
 import com.model.production.vente.Vente;
+import com.model.production.vente.vendeur.Vendeur;
 import com.model.produit.Produit;
 import com.model.produit.saveur.Saveur;
 import com.model.produit.variete.Variete;
@@ -35,8 +36,12 @@ public class VenteCRUD extends HttpServlet {
             Connection connection = utilDb.getConnection();
             String idVariete = req.getParameter("idVariete");
             String idSaveur = req.getParameter("idSaveur");
+            String dateDebut = req.getParameter("dateDebut");
+            String dateFin = req.getParameter("dateFin");
+
+            System.out.println("Valeur de date début "+ dateDebut+" Valeur de date fin "+dateFin);
             
-            req.setAttribute("ventes", Vente.getByCriteria(connection, null, null, idVariete, idSaveur, null, null));
+            req.setAttribute("ventes", Vente.getByCriteria(connection, null, null, idVariete, idSaveur, dateDebut, dateFin));
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());
@@ -51,12 +56,14 @@ public class VenteCRUD extends HttpServlet {
         String quantite = req.getParameter("quantite");
         String date = req.getParameter("date");
         String idClient = req.getParameter("idClient");
+        String idVendeur = req.getParameter("idVendeur");
 
         Vente[] ventes = new Vente[0] ; 
         try {
             Connection connection = utilDb.getConnection();
             Vente vente = new Vente(null, quantite, date, idProduit);
             vente.setClient(idClient);
+            vente.setVendeur(idVendeur);
             vente.insert(connection);
             ventes =  Vente.getByCriteria(connection, null, null, null, null, null, null) ;
             req.setAttribute("message", "Vente insérée");
@@ -81,6 +88,7 @@ public class VenteCRUD extends HttpServlet {
             req.setAttribute("varietes", new Variete().getAll(connection));
             req.setAttribute("saveurs", new Saveur().getAll(connection));
             req.setAttribute("clients", new Client().getAll(connection));
+            req.setAttribute("vendeurs", new Vendeur().getAll(connection));
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());

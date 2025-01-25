@@ -118,7 +118,7 @@ public class ProduitBase {
         if(variete!=null) sql+= "and idVariete = ? ";
         try (PreparedStatement stmt = connection.prepareStatement(sql)){
             if(variete!=null) stmt.setString(1, variete.getId());
-            System.out.println("La requete est "+sql);
+            // System.out.println("La requete est "+sql);
             try(ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     String id = rs.getString("id");
