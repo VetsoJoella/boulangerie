@@ -31,7 +31,7 @@ public class VenteCRUD extends HttpServlet {
     
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         
-        System.out.println("Appel de get");
+        // System.out.println("Appel de get");
         try {
             Connection connection = utilDb.getConnection();
             String idVariete = req.getParameter("idVariete");
@@ -39,7 +39,7 @@ public class VenteCRUD extends HttpServlet {
             String dateDebut = req.getParameter("dateDebut");
             String dateFin = req.getParameter("dateFin");
 
-            System.out.println("Valeur de date début "+ dateDebut+" Valeur de date fin "+dateFin);
+            // System.out.println("Valeur de date début "+ dateDebut+" Valeur de date fin "+dateFin);
             
             req.setAttribute("ventes", Vente.getByCriteria(connection, null, null, idVariete, idSaveur, dateDebut, dateFin));
 
@@ -92,7 +92,7 @@ public class VenteCRUD extends HttpServlet {
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());
-            System.err.println(err);
+            // System.err.println(err);
             err.printStackTrace();
         }
         rd.forward(req, res);

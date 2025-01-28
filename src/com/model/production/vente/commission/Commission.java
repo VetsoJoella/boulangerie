@@ -60,7 +60,7 @@ public class Commission {
         if (genre!=null) sql+= " and idGenre = ? ";
 
 
-        System.out.println("requete de getByCriteria de commission est "+sql);
+        // System.out.println("requete de getByCriteria de commission est "+sql);
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
             if(dateMin!=null) pstmt.setDate(1, dateMin);
@@ -77,7 +77,7 @@ public class Commission {
                     String id = "" ; 
                     Vendeur v = new Vendeur(rs.getString("id"), rs.getString("nom"));
                     double c = rs.getDouble("commission");
-                    Genre g = new Genre().getById(connection, rs.getString("idGenre"));
+                    // Genre g = new Genre().getById(connection, rs.getString("idGenre"));
                     v.setGenre(genre);
                     Commission cms = new Commission(v, c) ;
                     cms.setId(id); 

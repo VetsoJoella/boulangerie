@@ -31,8 +31,19 @@ public class ProduitCRUD extends HttpServlet{
         
         String idVariete = req.getParameter("idVariete"), saveur = req.getParameter("idSaveur");
         String idProduitBase = req.getParameter("iProduitBase") ;
+        String idProduit = req.getParameter("idProduit") ; 
+
         try {
             Connection connection = utilDb.getConnection();
+
+            if(idProduit!=null) {
+                Produit produit = Produit.getById(connection, idProduit) ;
+                req.setAttribute("produit", produit);
+                RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/pages/CRUD/historiqueProduit.jsp");
+                rd.forward(req, res);    
+
+
+            }
             req.setAttribute("produits", Produit.getByCriteria(connection, idProduitBase, saveur, idVariete));
 
         } catch(Exception err) {

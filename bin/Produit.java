@@ -1,6 +1,7 @@
 package com.model.produit;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -205,11 +206,11 @@ public class Produit {
                     String idProduitBase = rs.getString("idProduitBase");
                     double prix = rs.getDouble("d_prixvente");
 
-                    Variete v = new Variete(rs.getString("idVariete"), rs.getString("nomVariete"));
+                    // Variete v = new Variete(rs.getString("idVariete"), rs.getString("nomVariete"));
                     Saveur s = new Saveur(rs.getString("idSaveur"), rs.getString("nomSaveur"));
                     
                     ProduitBase p = ProduitBase.getById(connection, idProduitBase) ;
-                    p.setVariete(v);
+                    // p.setVariete(v);
 
                     // produitBase.setSaveur(saveur);
                     produits.add(new Produit(id, p, s, prix));
@@ -237,6 +238,34 @@ public class Produit {
         }
     }
 
+    public void update(Connection connection, String date) throws Exception {
+     
+        try {
+            Date d = Date.valueOf(date); 
+            connection.setAutoCommit(false);
+            String sql = "UPDATE produit SET d_prixVente = ? WHERE id = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+                pstmt.setDouble(1, getPrixVente());
+                pstmt.setString(2, getId());
+                pstmt.executeUpdate();
+
+                // enregistrerHistorique(connection);
+                HistoriqueProduit historiqueProduit = new HistoriqueProduit(this, d, getPrixVente());
+                historiqueProduit.insert(connection);
+                connection.commit();
+
+            } catch(Exception err) {
+                connection.rollback();
+                throw err ;
+            }
+
+        } catch (Exception e) {
+            update(connection);
+        }
+        
+    }
+
+    
     private void enregistrerHistorique(Connection connection) throws Exception{
         HistoriqueProduit historiqueProduit = new HistoriqueProduit(this, null, getPrixVente());
         historiqueProduit.insert(connection);

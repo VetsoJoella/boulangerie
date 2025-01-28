@@ -41,6 +41,20 @@ CREATE TABLE client(
    PRIMARY KEY(id)
 );
 
+CREATE TABLE commission(
+   id VARCHAR(50)  DEFAULT ('CMS') || LPAD(nextval('s_commission')::TEXT, 5, '0'),
+   pourcentage NUMERIC(10,2)   default 0,
+   dateChangement TIMESTAMP default current_timestamp,
+   PRIMARY KEY(id)
+);
+
+CREATE TABLE minCommission(
+   id VARCHAR(50)  DEFAULT ('MIN_CMS') || LPAD(nextval('s_mincommission')::TEXT, 5, '0'),
+   montant NUMERIC(10,2)   default 0,
+   dateChangement TIMESTAMP default current_timestamp,
+   PRIMARY KEY(id)
+);
+
 CREATE TABLE produitBase(
    id VARCHAR(50)  DEFAULT ('PRD_BS') || LPAD(nextval('s_produitBase')::TEXT, 5, '0'),
    nom VARCHAR(30)  NOT NULL,
@@ -85,11 +99,9 @@ CREATE TABLE vente(
    quantiteVente INTEGER default 0,
    d_prixUnitaire NUMERIC(10,2)   default 0.0,
    idClient VARCHAR(50)  NOT NULL,
-   idVendeur VARCHAR(50)  NOT NULL,
    idProduit VARCHAR(50)  NOT NULL,
    PRIMARY KEY(id),
    FOREIGN KEY(idClient) REFERENCES client(id),
-   FOREIGN KEY(idVendeur) REFERENCES vendeur(id),
    FOREIGN KEY(idProduit) REFERENCES produit(id)
 );
 
@@ -111,40 +123,3 @@ CREATE TABLE detailfabrication(
    FOREIGN KEY(idIngredient) REFERENCES ingredient(id),
    FOREIGN KEY(idFabrication) REFERENCES fabrication(id)
 );
-
-
-CREATE TABLE vendeur(
-   id VARCHAR(50)  DEFAULT ('VND') || LPAD(nextval('s_vente')::TEXT, 5, '0'),
-   nom VARCHAR(50)  NOT NULL,
-   idGenre VARCHAR(50)  NOT NULL,
-   PRIMARY KEY(id),
-   FOREIGN KEY(idGenre) REFERENCES genre(id)
-);
-
-
-CREATE TABLE genre(
-   id VARCHAR(50)  DEFAULT ('GRE') || LPAD(nextval('s_genre')::TEXT, 5, '0'),
-   nom VARCHAR(50)  NOT NULL,
-   PRIMARY KEY(id)
-);
-
-
-CREATE TABLE commission(
-   id VARCHAR(50)  DEFAULT ('CMS') || LPAD(nextval('s_commission')::TEXT, 5, '0'),
-   pourcentage NUMERIC(10,2)   default 0,
-   dateChangement TIMESTAMP default current_timestamp,
-   PRIMARY KEY(id)
-);
-
-CREATE TABLE minCommission(
-   id VARCHAR(50)  DEFAULT ('MIN_CMS') || LPAD(nextval('s_mincommission')::TEXT, 5, '0'),
-   montant NUMERIC(10,2)   default 0,
-   dateChangement TIMESTAMP default current_timestamp,
-   PRIMARY KEY(id)
-);
-
-
-
--- select v.*, commission from vendeur v 
--- join (select idVendeur, coalesce(sum(commission),0) as commission from vente v group by idVendeur where date ) f 
--- on v.id = idVendeur 

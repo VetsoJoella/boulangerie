@@ -91,6 +91,13 @@
               <i class="bi bi-circle"></i><span>Produit</span>
             </a>
           </li>
+
+           <li>
+            <a href="${pageContext.request.contextPath}/CRUD/historiqueProduit">
+              <i class="bi bi-circle"></i><span>Historique Produit</span>
+            </a>
+          </li>
+
           <li>
             <a href="${pageContext.request.contextPath}/CRUD/fabrication">
               <i class="bi bi-circle"></i><span>Fabrication</span>

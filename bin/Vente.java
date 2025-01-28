@@ -37,10 +37,12 @@ public class Vente extends Production{
         this.commission = commission;
     }
 
-    public void setCommission() {
+    public void setCommission(){}
+
+    public void setCommission(CommissionConfig commissionConfig) {
         setCommission(0);
-        if(getTotal()>=CommissionConfig.MIN_COMMISSION) { 
-            setCommission((getQuantite()*getProduit().getPrixVente()*CommissionConfig.COMMISSION)/100);
+        if(getTotal()>=commissionConfig.MIN_COMMISSION()) { 
+            setCommission((getQuantite()*getProduit().getPrixVente()*commissionConfig.COMMISSION())/100);
         }
         
     }
@@ -127,7 +129,10 @@ public class Vente extends Production{
 
         // if(getProduit().getPrixVente()==0) setProduit(Produit.getById(connection, getProduit().getId()));
         setProduit(Produit.getById(connection, getProduit().getId()));
-        setCommission();
+
+        CommissionConfig commissionConfig = new CommissionConfig(connection) ;
+        // commissionConfig.set(connection);
+        setCommission(commissionConfig);
 
         String sql = "INSERT INTO vente (id, quantiteVente, dateVente, d_prixUnitaire, idProduit, idClient, idVendeur, commission) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?)";
         
@@ -141,7 +146,7 @@ public class Vente extends Production{
             pstmt.setString(6, getVendeur().getId()); // Utilisation de l'ID de l'objet Produit
             pstmt.setDouble(7, getCommission()); // Utilisation de l'ID de l'objet Produit
             pstmt.executeUpdate();
-            System.out.println("Prix du produit est "+getProduit().getPrixVente());
+            // System.out.println("Prix du produit est "+getProduit().getPrixVente());
 
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -211,7 +216,7 @@ public class Vente extends Production{
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
-            System.out.println("Requete est "+sql);
+            // System.out.println("Requete est "+sql);
             if(dateDebut!=null) pstmt.setDate(1, dateDebut);
             else pstmt.setString(1, "1");
             if(dateFin!=null) pstmt.setDate(2, dateFin);
@@ -249,7 +254,7 @@ public class Vente extends Production{
        
           
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            System.out.println("Requete de getByCriteria est "+sql);
+            // System.out.println("Requete de getByCriteria est "+sql);
             if(variete!=null) pstmt.setString(1, variete.getId());
             else pstmt.setString(1, "1");
             if(saveur!=null) pstmt.setString(2, saveur.getId());
@@ -299,9 +304,9 @@ public class Vente extends Production{
         else sql+= "and '1' = ? ";
         if(dateMax!=null) sql+= "and dateVente<= ? ";
           
-        System.out.println("Appel de getByCriteria avec date");
+        // System.out.println("Appel de getByCriteria avec date");
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            System.out.println(sql);
+            // System.out.println(sql);
             if(variete!=null) pstmt.setString(1, variete.getId());
             else pstmt.setString(1, "1");
             if(saveur!=null) pstmt.setString(2, saveur.getId());
@@ -329,7 +334,7 @@ public class Vente extends Production{
             }
         }
        
-        System.out.println("Longueur de réponse est "+ventes.size());
+        // System.out.println("Longueur de réponse est "+ventes.size());
         return ventes.toArray(new Vente[0]);
     }
 

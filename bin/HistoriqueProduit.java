@@ -101,13 +101,15 @@ public class HistoriqueProduit {
     public static HistoriqueProduit[] getByCriteria(Connection connection, String idProduit) throws Exception {
         
         List<HistoriqueProduit> listeProduits = new ArrayList<>();
-        String sql = "SELECT * FROM v_historique_produit_produitBase_detail v ";
-        if(idProduit!=null) sql+= " and idProduit = ?";
+        String sql = "SELECT * FROM v_historique_produit_produitBase_detail v where 1=1 ";
+        if(idProduit!=null) sql+= " and idProduit = ? ";
+        sql+=" order by dateProduit desc";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             if(idProduit!=null) {
                 pstmt.setString(1, idProduit);
             }
+            System.out.println("La requete de select est "+sql+" Valeur de produit id est "+idProduit);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     String id = rs.getString("id");

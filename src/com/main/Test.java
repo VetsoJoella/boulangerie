@@ -1,11 +1,14 @@
 package com.main;
 
+import java.sql.Connection;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.configuration.CommissionConfig;
+import com.service.connection.UtilDb;
 import com.service.util.date.Intervalle;
 
 // import java.sql.Connection;
@@ -20,18 +23,32 @@ public class Test {
     
     public static void main(String[] args) {
      
-        Date debut = Date.valueOf("2025-01-14"), fin =Date.valueOf("2025-03-14");
-        try {
-            Intervalle intervalle = new Intervalle(debut, fin);
-            for (Intervalle i : intervalle.getIntervalleAssocie()) {
-                System.out.println("Date début est "+intervalle.getDateDebut()+" Date fin est "+intervalle.getDateFin());
+        // Date debut = Date.valueOf("2025-01-14"), fin =Date.valueOf("2025-03-14");
+        // try {
+        //     Intervalle intervalle = new Intervalle(debut, fin);
+        //     for (Intervalle i : intervalle.getIntervalleAssocie()) {
+        //         System.out.println("Date début est "+intervalle.getDateDebut()+" Date fin est "+intervalle.getDateFin());
 
-            }
-        } catch (Exception e) {
-           e.printStackTrace();
-        }
+        //     }
+        // } catch (Exception e) {
+        //    e.printStackTrace();
+        // }
        
-     
+         
+        try{
+            UtilDb utilDb = new UtilDb("boulangerie", "postgres", "postgres") ;
+            try (Connection connection = utilDb.getConnection()) {
+                CommissionConfig commissionConfig = new CommissionConfig(connection) ;
+                // commissionConfig.set(connection);
+               
+                System.out.println("Valeur de commission "+commissionConfig.COMMISSION());
+                System.out.println("Valeur de min commission "+commissionConfig.MIN_COMMISSION());
+            } catch (Exception e) {
+                // TODO: handle exception
+            } 
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
 
     }
 

@@ -10,14 +10,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.model.produit.HistoriqueProduit;
 import com.model.produit.Produit;
 import com.model.produit.base.ProduitBase;
 import com.model.produit.saveur.Saveur;
 import com.model.produit.variete.Variete;
 import com.service.connection.UtilDb;
 
-@WebServlet("/CRUD/produit")
-public class ProduitCRUD extends HttpServlet{
+@WebServlet("/CRUD/historiqueProduit")
+
+public class MiseAJourProduit extends HttpServlet {
+    
     
     UtilDb utilDb ;
 
@@ -29,45 +32,36 @@ public class ProduitCRUD extends HttpServlet{
 
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         
-        String idVariete = req.getParameter("idVariete"), saveur = req.getParameter("idSaveur");
-        String idProduitBase = req.getParameter("iProduitBase") ;
         String idProduit = req.getParameter("idProduit") ; 
-
-        try {
+        try{
             Connection connection = utilDb.getConnection();
 
-            if(idProduit!=null) {
-                Produit produit = Produit.getById(connection, idProduit) ;
-                req.setAttribute("produit", produit);
-                RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/pages/CRUD/historiqueProduit.jsp");
-                rd.forward(req, res);    
-
-
-            }
-            req.setAttribute("produits", Produit.getByCriteria(connection, idProduitBase, saveur, idVariete));
+            req.setAttribute("historiqueProduits", HistoriqueProduit.getByCriteria(connection, idProduit));
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());
+            // System.err.println(err);
             err.printStackTrace();
         }
-        
         processRequest(req, res);
 
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
       
-        System.out.println("Appel de do post produit");
-        String idSaveur = req.getParameter("idSaveur"), idProduitBase = req.getParameter("idProduitBase");
-        String prix = req.getParameter("prix");
+       
+        String idProduit = req.getParameter("idProduit") ;
+        String prix = req.getParameter("prix") ;  
+        String date = req.getParameter("date") ; 
 
         try{
             Connection connection = utilDb.getConnection();
-            Produit produit = new Produit(idProduitBase, idSaveur, prix);
-            produit.insert(connection);
+            Produit produit = new Produit(idProduit);
+            produit.setPrixVente(prix);
+            produit.update(connection, date);
+            req.setAttribute("historiqueProduits", HistoriqueProduit.getByCriteria(connection, null));
 
-            req.setAttribute("message", "Produit bien insérée");
-            req.setAttribute("produits", Produit.getAll(connection));
+            req.setAttribute("message", "Produit mis à jour");
 
         } catch(Exception err) {
             err.printStackTrace();
@@ -79,17 +73,17 @@ public class ProduitCRUD extends HttpServlet{
 
     void processRequest(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/pages/CRUD/produit.jsp");
+        RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/pages/CRUD/historiqueProduit.jsp");
         try{
             Connection connection = utilDb.getConnection();
-            req.setAttribute("varietes", new Variete().getAll(connection));
-            req.setAttribute("saveurs", new Saveur().getAll(connection));
-            req.setAttribute("produitBases", ProduitBase.getAll(connection));
+            req.setAttribute("produits", Produit.getAll(connection));
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());
-            System.err.println(err);
+            // System.err.println(err);
+            err.printStackTrace();
         }
         rd.forward(req, res);    
     }
 }
+

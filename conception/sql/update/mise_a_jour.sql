@@ -13,7 +13,7 @@ REFERENCES type (id)
 
 insert into type(nom) values('pain'),('pizza')
 
-
+-- Jeudi 14 janvier
 
 -- SELECT conname
 -- FROM pg_constraint
@@ -26,7 +26,8 @@ ADD CONSTRAINT vente_idproduit_fkey
 FOREIGN KEY (idProduit) REFERENCES produitCaracteristique(id);
 
 
--- Androany 
+-- Jeudi 16 janvier
+
 -- ALTER TABLE vente
 -- ADD COLUMN idClient VARCHAR(50);
 
@@ -34,7 +35,7 @@ ALTER TABLE vente
 ADD CONSTRAINT fgnClient FOREIGN KEY (idClient)
 REFERENCES client (id)
 
--- Vendeur - Talata
+-- Vendeur - Talata 21 janvier
 
 -- ALTER TABLE vente
 -- ADD COLUMN idVendeur VARCHAR(50);
@@ -47,7 +48,7 @@ REFERENCES client (id)
 -- REFERENCES vendeur (id)
 
 
--- Jeudi 
+-- Jeudi 23 janvier
 
 ALTER TABLE vendeur
 ADD COLUMN idGenre VARCHAR(50);

@@ -7,6 +7,7 @@
 
 
 <% 
+
     Produit[] produits = (Produit[]) request.getAttribute("produits");
     ProduitBase[] produitBases = (ProduitBase[]) request.getAttribute("produitBases");
     Saveur[] saveurs = (Saveur[]) request.getAttribute("saveurs") ;
@@ -64,7 +65,7 @@
                   <div class="row mb-3">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Prix vente</label>
                     <div class="col-sm-10">
-                      <input type="number" class="form-control" id="inputText" name="prix" placeholder="8 000">
+                      <input type="number" class="form-control" id="inputText" name="prix" >
                     </div>
                   </div>
 
@@ -132,6 +133,7 @@
                     <th scope="col">#</th>
                     <th scope="col">Nom</th>
                     <th scope="col">Prix</th>
+                    <th scope="col"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -141,6 +143,7 @@
                             <th scope="row"><%= produit.getId() %></th>
                             <td><%= produit.getProduitBase().getNom() %> - <%=  produit.getSaveur().getNom() %></td>
                             <td><%= produit.getPrixVente() %></td>
+                            <td><a href="${pageContext.request.contextPath}/CRUD/historiqueProduit?idProduit=<%= produit.getId() %>">Modifier</a></td>
                           </tr>
                     <% } %>
                   <% } %>
