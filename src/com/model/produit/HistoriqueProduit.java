@@ -9,6 +9,7 @@ import java.util.List;
 import java.sql.Date;
 
 import com.exception.DonneesManquantesException;
+import com.exception.model.ValeurInvalideException;
 import com.model.produit.base.ProduitBase;
 import com.model.produit.saveur.Saveur;
 
@@ -16,7 +17,7 @@ public class HistoriqueProduit {
     
     String id ;
     Produit produit ; 
-    Date date ;
+    Date dateDebut, dateFin ; 
     double prix ;
 
     public String getId() {
@@ -35,13 +36,26 @@ public class HistoriqueProduit {
         this.produit = produit;
     }
 
-    public Date getDate() {
-        return this.date;
+    public Date getDateDebut() {
+        return this.dateDebut;
     }
 
-    public void setDate(Date date) {
-        if (date == null)  this.date = new Date(System.currentTimeMillis());
-        else  this.date = date;
+    public void setDateDebut(Date date) {
+        if (date == null)  this.dateDebut = new Date(System.currentTimeMillis());
+        else  this.dateDebut = date;
+        
+    }
+
+    public Date getDateFin() {
+        return this.dateFin;
+    }
+
+    public void setDateFin(Date date) throws ValeurInvalideException {
+        if (date == null)  { 
+            if(getDateDebut()!=null && getDateDebut().before(getDateFin())) throw new ValeurInvalideException("La date fin ne peut pas etre supérieur à date début");
+            this.dateFin = new Date(System.currentTimeMillis());
+        }
+        else  this.dateFin = date;
         
     }
 
@@ -55,17 +69,26 @@ public class HistoriqueProduit {
 
     public HistoriqueProduit() {}
 
-    public HistoriqueProduit(Produit produit, Date date, double prix) {
+    // public HistoriqueProduit(Produit produit, Date dateDebut, double prix) {
+    //     setProduit(produit);
+    //     setDateDebut(dateDebut);
+    //     setPrix(prix);
+    // }
+
+    public HistoriqueProduit(Produit produit, Date dateDebut, Date dateFin, double prix) throws ValeurInvalideException{
         setProduit(produit);
-        setDate(date);
+        setDateDebut(dateDebut);
+        setDateFin(dateFin);
         setPrix(prix);
     }
 
-    public HistoriqueProduit(String id, Produit produit, Date date, double prix) {
+    public HistoriqueProduit(String id, Produit produit, Date dateDebut, Date dateFin, double prix) throws ValeurInvalideException{
         setId(id);
         setProduit(produit);
-        setDate(date);
+        setDateDebut(dateDebut);
+        setDateFin(dateFin);
         setPrix(prix);
+        System.out.println();
     }
 
     @Override
@@ -73,7 +96,8 @@ public class HistoriqueProduit {
         return "{" +
             " id='" + getId() + "'" +
             ", produit='" + getProduit() + "'" +
-            ", date='" + getDate() + "'" +
+            ", dateDebut='" + getDateDebut() + "'" +
+            ", dateFin='" + getDateFin() + "'" +
             ", prix='" + getPrix() + "'" +
             "}";
     }
@@ -82,11 +106,12 @@ public class HistoriqueProduit {
         
         if(getProduit()==null || getProduit().getId().isEmpty()) throw new DonneesManquantesException("Valeur de produit manquant", this);
         
-        String sql = "INSERT INTO historiqueprixproduit (id, idProduit, prixProduit, dateProduit) VALUES (DEFAULT, ?, ?, ?)";
+        String sql = "INSERT INTO historiqueprixproduit (id, idProduit, prixProduit, dateDebut, dateFin) VALUES (DEFAULT, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, getProduit().getId());
             pstmt.setDouble(2, getPrix());
-            pstmt.setDate(3, getDate());
+            pstmt.setDate(3, getDateDebut());
+            pstmt.setDate(4, getDateFin());
             pstmt.executeUpdate();
 
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
@@ -103,7 +128,7 @@ public class HistoriqueProduit {
         List<HistoriqueProduit> listeProduits = new ArrayList<>();
         String sql = "SELECT * FROM v_historique_produit_produitBase_detail v where 1=1 ";
         if(idProduit!=null) sql+= " and idProduit = ? ";
-        sql+=" order by dateProduit desc";
+        sql+=" order by dateDebut desc";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             if(idProduit!=null) {
@@ -114,11 +139,12 @@ public class HistoriqueProduit {
                 while (rs.next()) {
                     String id = rs.getString("id");
                     double prixVente = rs.getDouble("prixProduit");
-                    Date date = rs.getDate("dateProduit");
+                    Date dateDebut = rs.getDate("dateDebut");
+                    Date dateFin = rs.getDate("dateFin");
                     Saveur saveur = new Saveur(rs.getString("idSaveur"), rs.getString("nomSaveur"));
                     ProduitBase produitBase = new ProduitBase(rs.getString("idProduitBase"), rs.getString("nomProduitBase"));
                     Produit produit = new Produit(rs.getString("idProduit"),produitBase, saveur);
-                    listeProduits.add(new HistoriqueProduit(id, produit, date, prixVente));
+                    listeProduits.add(new HistoriqueProduit(id, produit, dateDebut, dateFin, prixVente));
                 }
             }
         }

@@ -5,12 +5,6 @@
 <% 
     Ingredient[] ingredients = (Ingredient[]) request.getAttribute("ingredients");
     AchatIngredient[] achats = (AchatIngredient[]) request.getAttribute("achats");
-
-    if (request.getAttribute("message") != null) { %>
-      <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
-      </script>
-  <% } 
 %>
   <main id="main" class="main">
 

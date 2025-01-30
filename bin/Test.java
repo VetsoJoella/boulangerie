@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.configuration.CommissionConfig;
+import com.model.produit.Produit;
 import com.service.connection.UtilDb;
 import com.service.util.date.Intervalle;
 
@@ -38,16 +39,13 @@ public class Test {
         try{
             UtilDb utilDb = new UtilDb("boulangerie", "postgres", "postgres") ;
             try (Connection connection = utilDb.getConnection()) {
-                CommissionConfig commissionConfig = new CommissionConfig(connection) ;
-                // commissionConfig.set(connection);
-               
-                System.out.println("Valeur de commission "+commissionConfig.COMMISSION());
-                System.out.println("Valeur de min commission "+commissionConfig.MIN_COMMISSION());
+                Produit produit = Produit.getById(connection, "PRD00014", Date.valueOf("2025-01-12"));
+                System.out.println(produit.getPrixVente());
             } catch (Exception e) {
-                // TODO: handle exception
+                e.printStackTrace();
             } 
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
 
     }

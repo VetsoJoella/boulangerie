@@ -127,11 +127,9 @@ public class Vente extends Production{
     
     protected void insertMere(Connection connection) throws Exception {
 
-        // if(getProduit().getPrixVente()==0) setProduit(Produit.getById(connection, getProduit().getId()));
-        setProduit(Produit.getById(connection, getProduit().getId()));
+        setProduit(Produit.getById(connection, getProduit().getId(), getDate()));
 
         CommissionConfig commissionConfig = new CommissionConfig(connection) ;
-        // commissionConfig.set(connection);
         setCommission(commissionConfig);
 
         String sql = "INSERT INTO vente (id, quantiteVente, dateVente, d_prixUnitaire, idProduit, idClient, idVendeur, commission) VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?)";
@@ -274,7 +272,8 @@ public class Vente extends Production{
                     Date dateVente = rs.getDate("dateVente");
                     Client client = new Client().getById(connection, rs.getString("idClient"));
                       
-                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"), dateVente);
+                    // produit.setPrixVente(rs.getDouble("d_prixvente"));
                     ventes.add(new Vente(id, quantiteVente, dateVente, p, client));
                 }
             }
@@ -328,7 +327,8 @@ public class Vente extends Production{
                     Date dateVente = rs.getDate("dateVente");
                     Client client = new Client().getById(connection, rs.getString("idClient"));
                       
-                    Produit p = Produit.getById(connection, rs.getString("idProduit"));
+                    Produit p = Produit.getById(connection, rs.getString("idProduit"), dateVente);
+                    // p.setPrixVente(rs.getDouble("d_prixVente"));
                     ventes.add(new Vente(id, quantiteVente, dateVente, p, client));
                 }
             }

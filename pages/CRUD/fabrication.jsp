@@ -10,11 +10,7 @@
     Variete[] varietes = (Variete[]) request.getAttribute("varietes");
     Ingredient[] ingredients = (Ingredient[]) request.getAttribute("ingredients");
 
-    if (request.getAttribute("message") != null) { %>
-      <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'").replace("\n", "\\n") %>');
-      </script>
-  <% } 
+
 %>
 
 

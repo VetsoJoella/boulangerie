@@ -4,11 +4,7 @@
 <% 
     Saveur[] saveurs = (Saveur[]) request.getAttribute("saveurs");
 
-    if (request.getAttribute("message") != null) { %>
-      <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
-      </script>
-  <% } 
+  
 %>
 
   <main id="main" class="main">

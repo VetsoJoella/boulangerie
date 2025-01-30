@@ -56,3 +56,15 @@ ADD COLUMN idGenre VARCHAR(50);
 -- ALTER TABLE vendeur
 -- ADD CONSTRAINT fgnGenre FOREIGN KEY (idGenre)
 -- REFERENCES genre (id)
+
+
+-- Mardi 27 janvier 
+
+-- ALTER TABLE historiqueprixproduit
+-- ADD COLUMN dateDebut TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- ALTER TABLE historiqueprixproduit
+-- ADD COLUMN dateFin TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- -- Suppression de la colonne de date: 
+-- ALTER TABLE historiqueprixproduit DROP COLUMN dateProduit CASCADE;

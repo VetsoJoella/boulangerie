@@ -6,11 +6,6 @@
     Unite[] unites = (Unite[]) request.getAttribute("unites");
     Ingredient[] ingredients = (Ingredient[]) request.getAttribute("ingredients");
 
-    if (request.getAttribute("message") != null) { %>
-      <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
-      </script>
-  <% } 
 %>
 
 

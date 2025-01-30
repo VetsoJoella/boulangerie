@@ -6,11 +6,6 @@
 <% 
     Commission[] commissions = (Commission[]) request.getAttribute("commissions") ;
 
-    if (request.getAttribute("message") != null) { %>
-      <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
-      </script>
-  <% } 
 %>
 
   <main id="main" class="main">

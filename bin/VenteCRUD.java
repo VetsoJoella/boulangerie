@@ -45,6 +45,7 @@ public class VenteCRUD extends HttpServlet {
 
         } catch(Exception err) {
             req.setAttribute("message", err.getMessage());
+            err.printStackTrace();
         }
         processRequest(req, res);
 

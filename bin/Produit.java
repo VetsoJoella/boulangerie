@@ -152,6 +152,36 @@ public class Produit {
         return null ;
     }
 
+    public static Produit getById(Connection connection, String idProduit, Date dateVente) throws Exception {
+        
+        String sql = "SELECT *, prixProduit from v_produit_saveur_variete_detail v join ";
+        sql+="(select idProduit, prixProduit from historiquePrixProduit where idProduit = ? and ? between dateDebut and dateFin) as temp ";
+        sql+= "on idProduit = v.id  WHERE 1=1";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)){
+            if(idProduit!=null) stmt.setString(1, idProduit);
+            if(dateVente!=null) stmt.setDate(2, dateVente);
+            try(ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+
+                    String id = rs.getString("id");
+                    String idProduitBase = rs.getString("idProduitBase");
+                    double prix = rs.getDouble("prixProduit");
+
+                    Variete variete = new Variete(rs.getString("idVariete"), rs.getString("nomVariete"));
+                    Saveur saveur = new Saveur(rs.getString("idSaveur"), rs.getString("nomSaveur"));
+                    
+                    ProduitBase produitBase = ProduitBase.getById(connection, idProduitBase) ;
+
+                    produitBase.setVariete(variete);
+
+                    // produitBase.setSaveur(saveur);
+                    return (new Produit(id, produitBase, saveur, prix));
+                }
+            }
+        }
+        return null ;
+    }
+
 
     public void insert(Connection connection) throws Exception{
 
@@ -165,7 +195,7 @@ public class Produit {
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     setId(generatedKeys.getString(1)); // Récupération de l'ID généré
-                   enregistrerHistorique(connection);
+                    enregistrerHistorique(connection, null, null);
                 } else throw new Exception("Aucune ligne de donnée inséree ");
             }
         } 
@@ -220,17 +250,13 @@ public class Produit {
         return produits.toArray(new Produit[0]);
     }
 
-    public void update(Connection connection) throws Exception {
+    void update(Connection connection) throws Exception {
      
-        connection.setAutoCommit(false);
         String sql = "UPDATE produit SET d_prixVente = ? WHERE id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setDouble(1, getPrixVente());
             pstmt.setString(2, getId());
             pstmt.executeUpdate();
-
-           enregistrerHistorique(connection);
-            connection.commit();
 
         } catch(Exception err) {
             connection.rollback();
@@ -238,36 +264,33 @@ public class Produit {
         }
     }
 
-    public void update(Connection connection, String date) throws Exception {
+    public void update(Connection connection, String dateDebut, String dateFin) throws Exception {
      
+        Date debut = null, fin = null ;
         try {
-            Date d = Date.valueOf(date); 
-            connection.setAutoCommit(false);
-            String sql = "UPDATE produit SET d_prixVente = ? WHERE id = ?";
-            try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-                pstmt.setDouble(1, getPrixVente());
-                pstmt.setString(2, getId());
-                pstmt.executeUpdate();
+            debut = Date.valueOf(dateDebut) ;
+        } catch (Exception e) { }
+        try {
+            fin = Date.valueOf(dateFin);
+        } catch (Exception e) { }
+        connection.setAutoCommit(false);
 
-                // enregistrerHistorique(connection);
-                HistoriqueProduit historiqueProduit = new HistoriqueProduit(this, d, getPrixVente());
-                historiqueProduit.insert(connection);
+        try {
+                update(connection);
+                enregistrerHistorique(connection, debut, fin);
                 connection.commit();
 
-            } catch(Exception err) {
-                connection.rollback();
-                throw err ;
-            }
-
         } catch (Exception e) {
-            update(connection);
+            connection.rollback(); 
+            throw e ; 
         }
+    
         
     }
 
     
-    private void enregistrerHistorique(Connection connection) throws Exception{
-        HistoriqueProduit historiqueProduit = new HistoriqueProduit(this, null, getPrixVente());
+    private void enregistrerHistorique(Connection connection, Date dateDebut, Date dateFin) throws Exception{
+        HistoriqueProduit historiqueProduit = new HistoriqueProduit(this, dateDebut, dateFin, getPrixVente());
         historiqueProduit.insert(connection);
     }
 

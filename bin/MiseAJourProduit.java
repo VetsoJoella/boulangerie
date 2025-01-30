@@ -52,13 +52,14 @@ public class MiseAJourProduit extends HttpServlet {
        
         String idProduit = req.getParameter("idProduit") ;
         String prix = req.getParameter("prix") ;  
-        String date = req.getParameter("date") ; 
+        String dateDebut = req.getParameter("dateDebut") ; 
+        String dateFin = req.getParameter("dateFin") ; 
 
         try{
             Connection connection = utilDb.getConnection();
             Produit produit = new Produit(idProduit);
             produit.setPrixVente(prix);
-            produit.update(connection, date);
+            produit.update(connection, dateDebut, dateFin);
             req.setAttribute("historiqueProduits", HistoriqueProduit.getByCriteria(connection, null));
 
             req.setAttribute("message", "Produit mis à jour");

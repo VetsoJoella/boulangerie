@@ -15,11 +15,7 @@
     // Saveur[] saveurs = (Saveur[]) request.getAttribute("saveurs") ;
     // Variete[] varietes = (Variete[]) request.getAttribute("varietes") ;
 
-    if (request.getAttribute("message") != null) { %>
-      <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
-      </script>
-  <% } 
+  
 %>
   <main id="main" class="main">
 
@@ -63,9 +59,16 @@
                     </div>
                   </div>
                   <div class="row mb-3">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Date de Changement</label>
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Date de Début</label>
                     <div class="col-sm-10">
-                      <input type="date" class="form-control" id="inputText" name="date" >
+                      <input type="date" class="form-control" id="inputText" name="dateDebut" >
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Date de Fin</label>
+                    <div class="col-sm-10">
+                      <input type="date" class="form-control" id="inputText" name="dateFin" >
                     </div>
                   </div>
 
@@ -115,7 +118,8 @@
                     <th scope="col">#</th>
                     <th scope="col">Produit</th>
                     <th scope="col">Prix</th>
-                    <th scope="col">Date Changement</th>
+                    <th scope="col">Date Début</th>
+                    <th scope="col">Date Fin</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -125,7 +129,8 @@
                             <th scope="row"><%= historiqueProduit.getId() %></th>
                             <td><%= historiqueProduit.getProduit().getProduitBase().getNom() %> - <%=  historiqueProduit.getProduit().getSaveur().getNom() %></td>
                             <td><%= historiqueProduit.getPrix() %></td>
-                            <td><%= historiqueProduit.getDate() %></td>
+                            <td><%= historiqueProduit.getDateDebut() %></td>
+                            <td><%= historiqueProduit.getDateFin() %></td>
                           </tr>
                     <% } %>
                   <% } %>

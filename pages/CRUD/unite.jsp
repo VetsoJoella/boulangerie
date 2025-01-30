@@ -4,11 +4,7 @@
 <% 
     Unite[] unites = (Unite[]) request.getAttribute("unites");
 
-    if (request.getAttribute("message") != null) { %>
-      <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
-      </script>
-  <% } 
+  
 %>
 
   <main id="main" class="main">

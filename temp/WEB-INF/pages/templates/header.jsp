@@ -227,3 +227,9 @@
     </ul>
 
   </aside><!-- End Sidebar-->
+
+  <% if (request.getAttribute("message") != null) { %>
+      <script type="text/javascript">
+          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
+      </script>
+  <% } %>

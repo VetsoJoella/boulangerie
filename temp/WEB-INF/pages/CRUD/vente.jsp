@@ -15,11 +15,7 @@
     Client[] clients = (Client[]) request.getAttribute("clients") ;
     Vendeur[] vendeurs = (Vendeur[]) request.getAttribute("vendeurs") ;
 
-    if (request.getAttribute("message") != null) { %>
-      <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
-      </script>
-  <% } 
+ 
 %>
 
   <main id="main" class="main">

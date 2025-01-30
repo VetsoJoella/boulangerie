@@ -12,11 +12,6 @@ import java.util.Map; --%>
 <% 
     Map<String, Commission[]> commissions = (Map<String, Commission[]>) request.getAttribute("commissions") ;
     Double[] sommes = (Double[]) request.getAttribute("sommes") ;
-    if (request.getAttribute("message") != null) { %>
-      <script type="text/javascript">
-          alert('<%= request.getAttribute("message").toString().replace("'", "\\'") %>');
-      </script>
-  <% } 
 %>
 
   <main id="main" class="main">
