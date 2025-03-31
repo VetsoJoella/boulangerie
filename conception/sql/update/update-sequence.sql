@@ -1,0 +1,1 @@
+ALTER SEQUENCE s_produit RESTART WITH 1;
