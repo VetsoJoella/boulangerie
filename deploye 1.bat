@@ -2,7 +2,7 @@
 
 setlocal
 
-set "webapps=D:\wildfly-26.1.2.Final\standalone\deployments\"
+set "webapps=path\to\your\deployments\folder"
 set "nomProjet=boulangerie"
 
 set "assets=assets"
